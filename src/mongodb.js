@@ -1,11 +1,11 @@
 const mongoose=require("mongoose")
 
-mongoose.connect("mongodb://localhost:27017/HevTracker")
+mongoose.connect("mongodb+srv://mrdavehun:123@palyaszamok.92qbrfa.mongodb.net/")
 .then(()=>{
     console.log("mongodb connected");
 })
-.catch(()=>{
-    console.log("failed to connect");
+.catch((e)=>{
+    console.log(e);
 })
 
 const LogInSchema=new mongoose.Schema({
