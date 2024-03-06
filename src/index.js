@@ -9,6 +9,7 @@ const templatePath=path.join(__dirname, '../templates')
 app.use(express.json())
 app.set("view engine","hbs")
 app.set("views", templatePath)
+app.use(express.urlencoded({extended:false}))
 
 app.get("/",(req,res)=>{
     res.render("login")
