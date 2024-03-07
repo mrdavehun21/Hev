@@ -52,8 +52,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
-/*
-app.listen(3000, () => {
+app.listen(80, () => {
     console.log("port connected");
 });
-*/
+
