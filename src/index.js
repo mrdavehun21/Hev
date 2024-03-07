@@ -27,7 +27,7 @@ app.post("/signup", async (req, res) => {
         await collection.create(data);
         console.log("User created successfully:", data);
         // Redirect to some other page after signup, for example:
-        res.render("home"); // You need to define "home" view
+        res.render("login"); // You need to define "home" view
     } catch (error) {
         console.error("Error creating user:", error);
         // Handle error
