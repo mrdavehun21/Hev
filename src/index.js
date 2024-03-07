@@ -1,18 +1,18 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const hbs = require("hbs");
 const collection = require("./mongodb");
 const templatePath = path.join(__dirname, '../templates');
 
 app.use(express.json());
 app.set("view engine", "hbs");
 app.set("views", templatePath);
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
     res.render("login"); // Render the login page
 });
+
 app.get("/signup", (req, res) => {
     res.render("signup"); // Render the signup page
 });
@@ -36,23 +36,21 @@ app.post("/signup", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+    try {
+        const check = await collection.findOne({ name: req.body.name });
 
-    try{
-        const check=await collection.findOne({name:req.body.name})
-
-        if(check.password===req.body.password){
-            res.render("home")
+        if (check && check.password === req.body.password) {
+            res.render("home");
+        } else {
+            res.send("Wrong username or password!");
         }
-        else{
-            res.send("Wrong password!")
-        }
-    }
-    catch{
-        res.send("Wrong details!")
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).send("Error during login");
     }
 });
 
-app.listen(443, () => {
-    console.log("port connected");
+const PORT = process.env.PORT || 3000; // Use environment port or default to 3000
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
