@@ -3,6 +3,7 @@ const app = express();
 const path = require("path");
 const collection = require("./mongodb");
 const templatePath = path.join(__dirname, '../templates');
+const timeout = 120000;
 
 app.use(express.json());
 app.set("view engine", "hbs");
@@ -52,5 +53,6 @@ app.post("/login", async (req, res) => {
 
 const PORT = process.env.PORT || 3000; // Use environment port or default to 3000
 app.listen(PORT, () => {
+    server.timeout = timeout;
     console.log(`Server is running on port ${PORT}`);
 });
