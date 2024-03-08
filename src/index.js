@@ -1,21 +1,31 @@
 const express = require("express");
 const app = express();
-const path = require("path");
+//const path = require("path");
 const collection = require("./mongodb");
-const templatePath = path.join(__dirname, '../templates');
+//const templatePath = path.join(__dirname, '../views');
 
 app.use(express.json());
 app.set("view engine", "hbs");
-app.set("views", templatePath);
+//app.set("views", templatePath);
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'));
 
-app.get("/", (req, res) => {
+app.get("", (req, res) => {
+    res.render("welcome"); // Render the login page
+});
+
+app.get("/login", (req, res) => {
     res.render("login"); // Render the login page
 });
 
 app.get("/signup", (req, res) => {
     res.render("signup"); // Render the signup page
 });
+
+app.get("/home", (req, res) => {
+    res.render("home"); // Render the home page
+});
+
 
 app.post("/signup", async (req, res) => {
     const data = {
@@ -26,8 +36,7 @@ app.post("/signup", async (req, res) => {
     try {
         await collection.create(data);
         console.log("User created successfully:", data);
-        // Redirect to some other page after signup, for example:
-        res.render("login"); // You need to define "home" view
+        res.redirect("/login");
     } catch (error) {
         console.error("Error creating user:", error);
         // Handle error
@@ -39,8 +48,8 @@ app.post("/login", async (req, res) => {
     try {
         const check = await collection.findOne({ name: req.body.name });
 
-        if (check && check.password === req.body.password) {
-            res.render("home");
+        if (check && check.password === req.body.password && req.headers.referer.includes('/login')) {
+            res.redirect("/home");
         } else {
             res.send("Wrong username or password!");
         }
