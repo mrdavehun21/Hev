@@ -1,3 +1,3 @@
 
 
-Visit palyaszamok.live
+Visit [palyaszamok.live](http://palyaszamok.live/)
