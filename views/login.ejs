@@ -1,20 +1,68 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="log_sig_folder/css/style.css">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    .background-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url(log_sig_folder/images/bg2.jpg);
+      background-size: cover;
+      background-repeat: no-repeat;
+      filter: blur(4px); /* Apply blur effect to the background only */
+      z-index: -1; /* Send the background behind other content */
+    }
+
+    .container {
+      position: relative;
+      z-index: 1; /* Ensure the container is above the blurred background */
+      height: 100%; /* Ensure the container takes full height */
+    }
+  </style>
 </head>
 <body>
-    
-    <h2>Log In</h2>
 
-    <form action="/login" method="post">
-    
-    <input type="text" name="name" placeholder="Name">
-    <input type="password" name="password" placeholder="Password">
-    <input type="submit" value="Login">
-
-    </form>
+  <div class="background-container"></div>
+  <section class="ftco-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6 text-center mb-5">
+          <h2 class="heading-section">Login</h2>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="login-wrap p-0">
+            <form action="/login" method="post" class="signin-form">
+              <div class="form-group">
+                <input type="text" class="form-control" name="name" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <input id="password-field" type="password" name="password" class="form-control" placeholder="Password">
+              </div>
+              <div class="form-group">
+                <button type="submit" value="Login" class="form-control btn btn-primary submit px-3">Sign In</button>
+              </div>
+            </form>
+            <p class="w-100 text-center">&mdash; <a href="/signup">Don't have an account? Sign up</a> &mdash;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
