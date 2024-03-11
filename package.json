@@ -7,10 +7,12 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
-  "author": {"name": "Davehun21"},
+  "author": {
+    "name": "Davehun21"
+  },
   "dependencies": {
+    "ejs": "^3.1.9",
     "express": "^4.18.3",
-    "hbs": "^4.2.0",
     "mongoose": "^8.2.1"
   },
   "devDependencies": {

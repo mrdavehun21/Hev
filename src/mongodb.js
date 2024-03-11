@@ -19,6 +19,17 @@ const LogInSchema=new mongoose.Schema({
     }
 })
 
+const HevsSchema = {
+    azon: String,
+    palyaszam: String,
+    kekbelso: String,
+    leaderToBatthy: String
+}
+
+const Hev= mongoose.model('hevCollection', HevsSchema);
 const collection=new mongoose.model("loginCollection",LogInSchema);
 
-module.exports = collection;
+module.exports = {
+    Hev: Hev,
+    collection: collection,
+  };

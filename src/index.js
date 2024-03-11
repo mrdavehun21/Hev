@@ -1,11 +1,9 @@
 const express = require("express");
 const app = express();
-//const path = require("path");
-const collection = require("./mongodb");
-//const templatePath = path.join(__dirname, '../views');
+const { Hev, collection } = require("./mongodb");
 
 app.use(express.json());
-app.set("view engine", "hbs");
+app.set("view engine", "ejs");
 //app.set("views", templatePath);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
@@ -23,7 +21,13 @@ app.get("/signup", (req, res) => {
 });
 
 app.get("/home", (req, res) => {
-    res.render("home"); // Render the home page
+    Hev.find().then((data) => {
+        console.log(data); // Check if data is fetched correctly
+        res.render("home", { hev: data }); // Pass movies data to your home template
+    }).catch((error) => {
+        console.error("Error:", error);
+        res.status(500).send("Error");
+    });
 });
 
 
