@@ -22,7 +22,7 @@ app.get("/signup", (req, res) => {
 app.get("/home", (req, res) => {
     res.render("home");
 });
-
+/*
 app.get("/home/vonatok", (req, res) => {
     Hev.find({}, { _id: 0 }).then((data) => {
         console.log(data); // Check if data is fetched correctly
@@ -54,9 +54,7 @@ app.get("/home/vonatok", (req, res) => {
         res.status(500).send("Error");
     });
 });
-
-
-
+*/
 
 app.post("/signup", async (req, res) => {
     const data = {
