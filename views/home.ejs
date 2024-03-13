@@ -29,7 +29,7 @@
               Dropdown
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/hev">Action</a></li>
+              <li><a class="dropdown-item" href="/home/vonatok">H5 Hév szerelvények</a></li>
               <li><a class="dropdown-item" href="/villamos">Another action</a></li>
             </ul>
           </li>
@@ -48,71 +48,6 @@
   <h1>Home Page</h1>
  <!-- Szentendre fel - Batyu fele gomb -->
  <!-- Teljes kocsik mutatása -->
-  <div class="container">
-    <div class="bg-white rounded shadow overflow-hidden">
-      <div class="pt-4 pb-5 px-6 border-bottom border-secondary-light">
-        <h4 class="mb-0">Recent Transactions</h4>
-      </div>
-      <div class="px-4 table-responsive">
-        <table class="table mb-0 table-borderless table-striped small">
-          <thead>
-            <tr class="text-secondary"><th class="py-3 px-6">Azonosító</th><th class="py-3 px-6">Pályaszám</th><th class="py-3 px-6">Kékbelső</th><th class="py-3 px-6">Battyány tér felé</th><th class="py-3 px-6">Status</th></tr>
-          </thead>
-          <tbody>
-            <% hev.forEach(function(hev) { %>
-              <tr>
-                <td class="py-5 px-6"><%= hev.azon %></td>
-                <td class="py-5 px-6"><%= hev.palyaszam %></td>
-                <td class="py-5 px-6"><%= hev.kekbelso %></td>
-                <td class="py-5 px-6"><%= hev.leaderToBatthy %></td>
-                <td class="py-5 px-6">
-                  <span class="badge bg-success">Completed</span>
-                </td>
-              </tr>
-            <% }); %>
-            
-            <tr>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6">
-                <span class="badge bg-danger">Canceled</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6">
-                <span class="badge bg-warning">Pending</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6">
-                <span class="badge bg-success">Completed</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6"></td>
-              <td class="py-5 px-6">
-                <span class="badge bg-success">Completed</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
   
 </body>
 </html>
