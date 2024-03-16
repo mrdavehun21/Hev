@@ -1,6 +1,7 @@
 const express = require("express");
-const { Hev, Collection } = require("./mongoDB")
+const { Collection } = require("./mongoDB")
 const app = express();
+const axios = require('axios');
 
 app.use(express.json());
 app.set("view engine", "ejs");
@@ -23,40 +24,43 @@ app.get("/home", (req, res) => {
     res.render("home");
 });
 
-app.get("/home/vonatok", (req, res) => {
-    Hev.find({}, { _id: 0 }).then((data) => {
-        console.log(data); // Check if data is fetched correctly
-        
-        // Log the structure of the first document
-        if (data.length > 0) {
-            console.log("Structure of the first document:", data[0]);
-        }
-        
-        // Extract numbers from the 'szerelveny' arrays
-        const numbers = [];
-        data.forEach(item => {
-            item.vonalak.forEach(vonal => {
-                vonal.vonatok.forEach(vonat => {
-                    vonat.szerelveny.forEach(number => {
-                        numbers.push(number);
-                    });
-                });
-            });
+//----------------------Vonatok------------------//
+
+function matchTripIdToTripHeadsign(tripId, trips) {
+    const trip = trips[tripId];
+    return trip ? trip.tripHeadsign : null;
+}
+
+app.get('/home/vonatok', async (req, res) => {
+    try {
+        const response = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
+            params: {
+                routeId: 'BKK_H5',
+                related: false,
+                ifModifiedSince: 1625685137,
+                appVersion: '1.1.abc',
+                version: 2,
+                includeReferences: true,
+                key: 'a619b5d8-6d54-451d-b612-47d0185abeb8'
+            }
         });
-        
-        // Log the extracted numbers
-        console.log("Extracted numbers:", numbers);
-        
-        // Render the "vonatok" template
-        res.render("vonatok", { vonatokNumbers: numbers });
-    }).catch((error) => {
-        console.error("Error:", error);
-        res.status(500).send("Error");
-    });
+        const responseData = response.data;
+
+        // Extracting license plate section
+        const vehicles = responseData.data.list.map(vehicle => ({
+            licensePlate: vehicle.licensePlate,
+            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, responseData.data.references.trips)
+        }));
+
+        // Render the EJS file with the data
+        res.render('vonatok', { vehicles });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error fetching data');
+    }
 });
 
-
-
+//-------------------------------------------------------------//
 
 app.post("/signup", async (req, res) => {
     const data = {
