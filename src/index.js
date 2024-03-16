@@ -1,5 +1,5 @@
 const express = require("express");
-const { Collection } = require("./mongoDB")
+const Collection = require("./mongoDB")
 const app = express();
 const axios = require('axios');
 
@@ -9,15 +9,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 app.get("", (req, res) => {
-    res.render("welcome"); // Render the login page
+    res.render("welcome");
 });
 
 app.get("/login", (req, res) => {
-    res.render("login"); // Render the login page
+    res.render("login");
 });
 
 app.get("/signup", (req, res) => {
-    res.render("signup"); // Render the signup page
+    res.render("signup");
 });
 
 app.get("/home", (req, res) => {

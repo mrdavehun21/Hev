@@ -21,6 +21,5 @@ const LogInSchema = new mongoose.Schema({
 
 const Collection = new mongoose.model("loginCollection", LogInSchema);
 
-module.exports = {  //index.js-ben lévő const megnevezés, ebben a fájlban lévő megnevezése
-    Collection: Collection
-};
+module.exports=Collection;
+//index.js-ben lévő const megnevezés, ebben a fájlban lévő megnevezése
