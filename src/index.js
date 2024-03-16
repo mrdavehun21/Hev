@@ -1,5 +1,5 @@
 const express = require("express");
-const Collection = require("./mongoDB")
+const Collection = require("./mongoDB");
 const app = express();
 const axios = require('axios');
 
