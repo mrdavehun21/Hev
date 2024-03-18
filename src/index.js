@@ -52,7 +52,8 @@ app.get('/home/vonatok', async (req, res) => {
         const responseData = response.data;
 
         // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = responseData.data.list.map(vehicle => ({
+        const vehicles = responseData.data.list.map((vehicle, index) => ({
+            index: index + 1, // Adding 1 to start index from 1
             licensePlate: vehicle.licensePlate,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, responseData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, responseData.data.references.stops)
