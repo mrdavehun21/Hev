@@ -26,6 +26,11 @@ app.get("/home", (req, res) => {
 
 //----------------------Vonatok------------------//
 
+function matchStopIdToName(stopId, stops) {
+    const stop = stops[stopId];
+    return stop ? stop.name : null;
+}
+
 function matchTripIdToTripHeadsign(tripId, trips) {
     const trip = trips[tripId];
     return trip ? trip.tripHeadsign : null;
@@ -46,10 +51,11 @@ app.get('/home/vonatok', async (req, res) => {
         });
         const responseData = response.data;
 
-        // Extracting license plate section
+        // Extracting license plate section and matching tripId to tripHeadsign
         const vehicles = responseData.data.list.map(vehicle => ({
             licensePlate: vehicle.licensePlate,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, responseData.data.references.trips)
+            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, responseData.data.references.trips),
+            stopName: matchStopIdToName(vehicle.stopId, responseData.data.references.stops)
         }));
 
         // Render the EJS file with the data
@@ -59,6 +65,7 @@ app.get('/home/vonatok', async (req, res) => {
         res.status(500).send('Error fetching data');
     }
 });
+
 
 //-------------------------------------------------------------//
 
