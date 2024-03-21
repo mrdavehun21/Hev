@@ -62,10 +62,9 @@
         <% vehicles.forEach(vehicle => { %>
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title">Vehicle <%= vehicle.index %></h5>
+                    <h5 class="card-title font"><%= vehicle.licensePlate %></h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">License Plate: <%= vehicle.licensePlate %></p>
                     <p class="card-text">Jelenleg <%= vehicle.stopName %>
                       <% if (vehicle.status === 'IN_TRANSIT_TO') { %>
                           megálló felé közlekedik
@@ -73,7 +72,17 @@
                           megállóban áll
                       <% } %>
                     </p>
-                    <p class="card-text">Trip Headsign: <%= vehicle.tripHeadsign %></p>
+                    <p class="card-text">
+                      <% if (vehicle.tripHeadsign == 'Szentendre') { %>
+                        <img  src="../icons/celfilmek/Endre.png" alt="Szentendre" class="celfilm">
+                      <% } %>
+                      <% if (vehicle.tripHeadsign === 'Békásmegyer') { %>
+                        <img  src="../icons/celfilmek/Bekas.png" alt="Békásmegyer" class="celfilm">
+                      <% } %>
+                      <% if (vehicle.tripHeadsign === 'Batthyány tér') { %>
+                        <img  src="../icons/celfilmek/Bter_old.png" alt="Batthyány tér" class="celfilm">
+                      <% } %>
+                    </p>
                     
                     <!-- Collapsible section for Stops -->
                     <div class="accordion" id="accordionStops<%= vehicle.index %>">
@@ -120,5 +129,8 @@
     setTimeout(function() {
         location.reload();
     }, 30000);
+    document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+    });
 </script>
 </html>

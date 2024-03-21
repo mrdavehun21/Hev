@@ -1,5 +1,6 @@
 html{
     margin: 0;
+    
 }
 
 
@@ -9,13 +10,28 @@ body{
     
 }
 
-h1 {
-    font-family: 'Racing Sans One';
+h1{
+    font-family: 'Racing Sans One' ; 
     color: #108541 !important;
     text-decoration: underline !important;
-    /* font-size: 200px; */
+    /*font-size: 25px; */
+}
+
+.font {
+    font-family: 'Racing Sans One' ; 
+    color: #108541 !important;
+    text-decoration: none !important;
+    font-size: 25px; 
 }
 
 .hidden{
     display: none;
+}
+
+.celfilm{
+    width: auto;
+    height: 40px;
+    border-radius: 10px;
+    border: black 1px solid;
+    -webkit-user-drag: none;
 }
