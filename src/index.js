@@ -70,10 +70,10 @@ app.get('/home/vonatok', async (req, res) => {
         const stopPromises = [];
 
         // Iterate over each vehicleId and make a request
-        for (const vehicleId of vehicleIds) {
+        for (const vehicle of vehicles) {
             const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
                 params: {
-                    vehicleId: vehicleId,
+                    vehicleId: vehicle.vehicleId,
                     date: '20240321',
                     ifModifiedSince: 1625685137,
                     appVersion: '1.1.abc',
@@ -89,20 +89,25 @@ app.get('/home/vonatok', async (req, res) => {
         // Wait for all requests to complete
         const stopResponses = await Promise.all(stopPromises);
 
-        // Process each stop response
-        const stops = [];
-        for (const response of stopResponses) {
+        // Create an object to store stops data indexed by vehicleId
+        const stopsByVehicle = {};
 
-            const stopTimesData = response.data;
-            
+        // Process each stop response
+        for (let i = 0; i < stopResponses.length; i++) {
+            const stopResponse = stopResponses[i];
+            const vehicleId = vehicles[i].vehicleId;
+            const stopTimesData = stopResponse.data;
+
+            // Extract stops data for this vehicleId
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopName: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
+                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopHeadsign: stop.stopHeadsign,
                 arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', hour12: false })
             }));
-            stops.push(...stopsData);
-        }
 
+            // Store stops data indexed by vehicleId
+            stopsByVehicle[vehicleId] = stopsData;
+        }
         
 
         /*
@@ -116,7 +121,7 @@ app.get('/home/vonatok', async (req, res) => {
         });
         */
         // Render the EJS file with the data
-        res.render('vonatok', { vehicles, stops });
+        res.render('vonatok', { vehicles, stopsByVehicle });
         } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');

@@ -87,13 +87,6 @@
                                         </td>
                                         <td>
                                           <%= vehicle.stopName %>
-                                          <br>
-                                          <%= vehicle.stopId %>
-                                          <% stops.forEach(stop => { %>
-                                            <br>
-                                            <%= stop.arrivalTime %>
-                                            <%= stop.stopName %>
-                                          <% }) %>
                                         </td>
                                         <td id="toDirection">
                                             <%= vehicle.tripHeadsign %>
@@ -106,6 +99,22 @@
                         </table>
                     </div>
                 </div>
+                <% vehicles.forEach(vehicle => { %>
+                  <h2>Vehicle <%= vehicle.index %></h2>
+                  <p>Vehicle ID: <%= vehicle.vehicleId %></p>
+                  <p>License Plate: <%= vehicle.licensePlate %></p>
+                  <p>Stop Name: <%= vehicle.stopName %></p>
+                  <p>Trip Headsign: <%= vehicle.tripHeadsign %></p>
+          
+                  <h3>Stops:</h3>
+                  <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
+                  <% vehicleStops.forEach(stop => { %>
+                      <p>Stop ID: <%= stop.stopId %></p>
+                      <p>Stop Headsign: <%= stop.stopHeadsign %></p>
+                      <p>Arrival Time: <%= stop.arrivalTime %></p>
+                  <% }); %>
+              <% }); %>
+
             </div>
         </div>       
     </main>
