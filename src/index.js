@@ -38,7 +38,7 @@ function matchTripIdToTripHeadsign(tripId, trips) {
 
 app.get('/home/vonatok', async (req, res) => {
     try {
-        const response = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
+        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
             params: {
                 routeId: 'BKK_H5',
                 related: false,
@@ -49,25 +49,79 @@ app.get('/home/vonatok', async (req, res) => {
                 key: 'a619b5d8-6d54-451d-b612-47d0185abeb8'
             }
         });
-        const responseData = response.data;
+        const vehiclesData = vehiclesResponse.data;
 
         // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = responseData.data.list.map((vehicle, index) => ({
+        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
             index: index + 1, // Adding 1 to start index from 1
+            vehicleId: vehicle.vehicleId,
+            tripId: vehicle.tripId,
+            stopId: vehicle.stopId,
             licensePlate: vehicle.licensePlate,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, responseData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, responseData.data.references.stops)
+            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
+            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
         }));
 
+        const vehicleIds = [];
+        vehicles.forEach(vehicle => {
+            vehicleIds.push(vehicle.vehicleId);
+        });
+
+        const stopPromises = [];
+
+        // Iterate over each vehicleId and make a request
+        for (const vehicleId of vehicleIds) {
+            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
+                params: {
+                    vehicleId: vehicleId,
+                    date: '20240321',
+                    ifModifiedSince: 1625685137,
+                    appVersion: '1.1.abc',
+                    version: 4,
+                    includeReferences: true,
+                    key: 'a619b5d8-6d54-451d-b612-47d0185abeb8'
+                }
+            });
+
+            stopPromises.push(stopPromise);
+        }
+
+        // Wait for all requests to complete
+        const stopResponses = await Promise.all(stopPromises);
+
+        // Process each stop response
+        const stops = [];
+        for (const response of stopResponses) {
+
+            const stopTimesData = response.data;
+            
+            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
+                stopName: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
+                stopHeadsign: stop.stopHeadsign,
+                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', hour12: false })
+            }));
+            stops.push(...stopsData);
+        }
+
+        
+
+        /*
+        No stopName for every stop        
+        Selectable stops and displaying departures and arrivals
+        */
+        //console.log(stopsData.data.references.stops);
+        /*
+        stops.forEach(stop => {
+            console.log(stop.tripId);
+        });
+        */
         // Render the EJS file with the data
-        res.render('vonatok', { vehicles });
-    } catch (error) {
+        res.render('vonatok', { vehicles, stops });
+        } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
     }
 });
-
-
 //-------------------------------------------------------------//
 
 app.post("/signup", async (req, res) => {

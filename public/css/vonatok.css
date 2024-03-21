@@ -9,10 +9,13 @@ body{
     
 }
 
-header {
+h1 {
     font-family: 'Racing Sans One';
-    text-align: center;
-    color: #108541;
-    text-decoration: underline;
-    font-size: 200px;
+    color: #108541 !important;
+    text-decoration: underline !important;
+    /* font-size: 200px; */
+}
+
+.hidden{
+    display: none;
 }
