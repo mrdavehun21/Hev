@@ -1,15 +1,22 @@
 const express = require("express");
+const session = require('express-session');
 const Collection = require("./mongoDB");
 const app = express();
 const axios = require('axios');
 
 app.use(express.json());
+app.use(session({
+    secret: '1224',
+    resave: false,
+    saveUninitialized: false
+}));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 app.get("", (req, res) => {
-    res.render("welcome");
+    const loggedIn = req.session ? req.session.loggedIn || false : false;
+    res.render('home', { loggedIn });
 });
 
 app.get("/login", (req, res) => {
@@ -21,7 +28,8 @@ app.get("/signup", (req, res) => {
 });
 
 app.get("/home", (req, res) => {
-    res.render("home");
+    const loggedIn = req.session ? req.session.loggedIn || false : false;
+    res.render('home', { loggedIn });
 });
 
 //----------------------Vonatok------------------//
@@ -151,6 +159,39 @@ app.get('/home/vonatok', async (req, res) => {
 });
 //-------------------------------------------------------------//
 
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).send('Error logging out');
+        } else {
+            res.redirect('/login');
+        }
+    });
+});
+app.use(session({
+    secret: '1224',
+    resave: false,
+    saveUninitialized: false
+}));
+
+
+app.post("/login", async (req, res) => {
+    try {
+        const check = await Collection.findOne({ name: req.body.name });
+
+        if (check && check.password === req.body.password && req.headers.referer.includes('/login')) {
+            req.session.loggedIn = true; // Set loggedIn flag
+            res.redirect("/home");
+        } else {
+            res.send("Wrong username or password!");
+        }
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).send("Error during login");
+    }
+});
+
 app.post("/signup", async (req, res) => {
     const data = {
         name: req.body.name,
@@ -165,21 +206,6 @@ app.post("/signup", async (req, res) => {
         console.error("Error creating user:", error);
         // Handle error
         res.status(500).send("Error creating user");
-    }
-});
-
-app.post("/login", async (req, res) => {
-    try {
-        const check = await Collection.findOne({ name: req.body.name });
-
-        if (check && check.password === req.body.password && req.headers.referer.includes('/login')) {
-            res.redirect("/home");
-        } else {
-            res.send("Wrong username or password!");
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).send("Error during login");
     }
 });
 
