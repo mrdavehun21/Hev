@@ -14,6 +14,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
+
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render('home', { loggedIn });
@@ -45,6 +46,7 @@ function matchTripIdToTripHeadsign(tripId, trips) {
 }
 
 app.get('/home/vonatok', async (req, res) => {
+    const apiKey = require('./api-key-file.json').key;
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
             params: {
@@ -54,7 +56,7 @@ app.get('/home/vonatok', async (req, res) => {
                 appVersion: '1.1.abc',
                 version: 2,
                 includeReferences: true,
-                key: 'a619b5d8-6d54-451d-b612-47d0185abeb8'
+                key: apiKey
             }
         });
         const vehiclesData = vehiclesResponse.data;
@@ -110,7 +112,7 @@ app.get('/home/vonatok', async (req, res) => {
                     appVersion: '1.1.abc',
                     version: 4,
                     includeReferences: true,
-                    key: 'a619b5d8-6d54-451d-b612-47d0185abeb8'
+                    key: apiKey
                 }
             });
 
