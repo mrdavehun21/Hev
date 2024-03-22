@@ -8,7 +8,7 @@
     "dev": "nodemon src/index.js"
   },
   "author": {
-    "name": "Davehun21"
+    "name": "mrdavehun21"
   },
   "dependencies": {
     "axios": "^1.6.8",
