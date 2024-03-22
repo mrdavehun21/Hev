@@ -81,6 +81,7 @@ app.get('/home/vonatok', async (req, res) => {
             const now = new Date();
             const options = {
                 hour12: false,
+                timeZone: 'Europe/Budapest',
                 hour: '2-digit',
                 minute: '2-digit',
                 weekday: 'short',
@@ -124,8 +125,7 @@ app.get('/home/vonatok', async (req, res) => {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopHeadsign: stop.stopHeadsign,
-                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId

@@ -98,7 +98,6 @@
                                         <thead>
                                             <tr>
                                                 <th scope="col">Stop ID</th>
-                                                <th scope="col">Arrival Time</th>
                                                 <th scope="col">Predicted Arrival Time</th>
                                             </tr>
                                         </thead>
@@ -107,8 +106,9 @@
                                             <% vehicleStops.forEach(stop => { %>
                                                 <tr>
                                                     <td><%= stop.stopId %></td>
-                                                    <td><%= stop.arrivalTime %></td>
-                                                    <td><%= stop.predictedArrivalTime %></td>
+                                                    <td>
+                                                      <%= stop.predictedArrivalTime %>
+                                                    </td>
                                                 </tr>
                                             <% }); %>
                                         </tbody>
