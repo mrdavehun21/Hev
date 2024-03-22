@@ -1,8 +1,6 @@
 const express = require("express");
 const session = require('express-session');
 const Collection = require("./mongoDB");
-require('dotenv').config();
-const apiKey = process.env.API_KEY;
 const app = express();
 const axios = require('axios');
 
@@ -46,7 +44,7 @@ function matchTripIdToTripHeadsign(tripId, trips) {
     const trip = trips[tripId];
     return trip ? trip.tripHeadsign : null;
 }
-
+const apiKey = process.env.API_KEY;
 app.get('/home/vonatok', async (req, res) => {
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
