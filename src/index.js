@@ -1,6 +1,8 @@
 const express = require("express");
 const session = require('express-session');
 const Collection = require("./mongoDB");
+require('dotenv').config();
+const apiKey = process.env.API_KEY;
 const app = express();
 const axios = require('axios');
 
@@ -16,10 +18,6 @@ app.use(express.static('public'));
 
 
 app.get("", (req, res) => {
-    const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn });
-});
-app.get("/", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render('home', { loggedIn });
 });
@@ -50,7 +48,6 @@ function matchTripIdToTripHeadsign(tripId, trips) {
 }
 
 app.get('/home/vonatok', async (req, res) => {
-    const apiKey = require('./api-key-file.json').key;
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
             params: {
@@ -158,9 +155,12 @@ app.get('/home/vonatok', async (req, res) => {
         */
         // Render the EJS file with the data
         res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign });
-        } catch (error) {
+    } catch (error) 
+    {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
+        console.log('Process Environment:', process.env);
+        //console.log('API_KEY:', process.env.API_KEY);
     }
 });
 //-------------------------------------------------------------//
