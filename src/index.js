@@ -19,6 +19,10 @@ app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render('home', { loggedIn });
 });
+app.get("/", (req, res) => {
+    const loggedIn = req.session ? req.session.loggedIn || false : false;
+    res.render('home', { loggedIn });
+});
 
 app.get("/login", (req, res) => {
     res.render("login");
