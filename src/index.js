@@ -46,7 +46,6 @@ function matchTripIdToTripHeadsign(tripId, trips) {
     return trip ? trip.tripHeadsign : null;
 }
 const apiKey = process.env.API_KEY;
-
 app.get('/home/vonatok', async (req, res) => {
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {

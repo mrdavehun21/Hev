@@ -1,3 +1,35 @@
-html{
+img{
+    -webkit-user-drag: none;
+}
+
+.Animate1 {
+    animation: mymove 10s linear infinite; /* Adjusted duration to cover the entire movement */
+    position: absolute;
+    left: -20%; /* Start off the left edge */
+}
+
+@keyframes mymove {
+    0%   { left: -20%; } /* Start off the left edge */
+    50%  { left: calc(100% - 100px); } /* Move to the right edge (minus 100px to ensure it's completely off the screen) */
+    100% { left: calc(-20%); } /* Return to the left edge */
+}
+
+.sin {
+    position:absolute;
+    top: 7.1rem;
+    background-color: transparent;
+    mask-repeat: repeat-y;
+}
+
+
+body {
+    transition: background-color 0.3s ease;
     background-color: beige;
+    overflow: hidden;
+}
+
+.dark-mode {
+background-color: #222;
+color: #fff;
+
 }

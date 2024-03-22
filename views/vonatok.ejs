@@ -62,7 +62,14 @@
         <% vehicles.forEach(vehicle => { %>
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title font"><%= vehicle.licensePlate %></h5>
+                  <h5 class="card-title font">
+                    <% 
+                    // Split the license plate into two pieces
+                    const [part1, part2] = vehicle.licensePlate.split("-");
+                    // Output the two parts
+                    %> 
+                    <%= part1 %> <%= part2 %>
+                  </h5>
                 </div>
                 <div class="card-body">
                     <p class="card-text">Jelenleg <%= vehicle.stopName %>
@@ -125,12 +132,32 @@
     </main>
 </body>
 <script>
-    // Refresh the page after a certain delay
-    setTimeout(function() {
-        location.reload();
-    }, 30000);
-    document.addEventListener('contextmenu', function(event) {
+
+  const licensePlates = [
+      ['977-978', '975-976'],
+      ['979-980', '981-982'],
+      ['989-990', '987-988'],
+      ['991-992', '993-994'],
+      ['995-996', '997-998'],
+      ['1101-1102', '1135-1136'],
+      ['1103-1104', '1105-1106'],
+      ['1118-1117', '1116-1115'],
+      ['1119-1120', '1121-1122'],
+      ['1127-1128', '1129-1130'],
+      ['1123-1124', '1139-1140'],
+      ['1137-1138', '971-972'],
+      ['1131-1132', '1133-1134'],
+      ['1146-1145', '1113-1114'],
+      ['984-983', '1149-1150']
+  ];
+
+  console.log(licensePlates);
+
+
+  // Disable context menu
+  document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
     });
 </script>
+
 </html>

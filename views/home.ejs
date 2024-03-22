@@ -29,15 +29,17 @@
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Profile
               </a>
               <ul class="dropdown-menu">
                   <% if (loggedIn) { %>
-                      <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    <li><button onclick="toggleTheme()">Toggle Theme</button></li>
                   <% } else { %>
-                      <li><a class="dropdown-item" href="/login">Login</a></li>
-                      <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+                    <li><a class="dropdown-item" href="/login">Login</a></li>
+                    <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+                    <li><button onclick="toggleTheme()">Toggle Theme</button></li>
                   <% } %>
               </ul>
           </li>
@@ -45,6 +47,52 @@
       </div>
     </div>
   </nav>
+  <a href="/home/vonatok">
+    <img id="image1" class="Animate1" src="../icons/MXA.png"/>
+    <img id="image2" class="sin" src="../icons/sin2.png"></a>
+  
 </body>
 </html>
+
+<script>
+  window.onload = function() {
+    // Check if theme preference is stored
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme) {
+      document.body.classList.add(currentTheme);
+    }
+
+    // Check initial theme for image source change
+    checkTheme();
+  };
+
+  function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle("dark-mode");
+
+    // Save theme preference to localStorage
+    const currentTheme = body.classList.contains('dark-mode') ? 'dark-mode' : '';
+    localStorage.setItem('theme', currentTheme);
+
+    // Change image source based on theme
+    checkTheme();
+  }
+
+  function checkTheme() {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const image1 = document.getElementById('image1');
+    const image2 = document.getElementById('image2');
+
+    if (isDarkMode) {
+      // Change image source for dark mode
+      image1.src = '../icons/MXAEste.png';
+    } else {
+      // Reset image source for light mode
+      image1.src = '../icons/MXA.png';
+    }
+  }
+  document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+  });
+</script>
 
