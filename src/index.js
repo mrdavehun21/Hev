@@ -18,7 +18,7 @@ app.use(express.static('public'));
 
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn });
+    res.render('home', { loggedIn, dateForDesign });
 });
 
 app.get("/login", (req, res) => {
@@ -31,9 +31,23 @@ app.get("/signup", (req, res) => {
 
 app.get("/home", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn });
+    res.render('home', { loggedIn, dateForDesign });
 });
 
+const dateForDesign = getDateForDesign();
+function getDateForDesign(){
+    const now = new Date();
+    const options = {
+        hour12: false,
+        timeZone: 'Europe/Budapest',
+        hour: '2-digit',
+        minute: '2-digit',
+        weekday: 'short',
+        month: 'long',
+        day: 'numeric'
+    };
+    return now.toLocaleString('en-US', options);
+}
 //----------------------Vonatok------------------//
 
 function matchStopIdToName(stopId, stops) {
@@ -135,7 +149,8 @@ app.get('/home/vonatok', async (req, res) => {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopHeadsign: stop.stopHeadsign,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
@@ -143,15 +158,11 @@ app.get('/home/vonatok', async (req, res) => {
         }
 
         /*
-        No stopName for every stop        
+        No predictedArrivalTime for Batthyány tér        
         Selectable stops and displaying departures and arrivals
         */
-        //console.log(stopsData.data.references.stops);
-        /*
-        stops.forEach(stop => {
-            console.log(stop.tripId);
-        });
-        */
+
+
         // Render the EJS file with the data
         res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign });
     } catch (error) 
@@ -168,7 +179,7 @@ app.get('/logout', (req, res) => {
             console.error('Error destroying session:', err);
             res.status(500).send('Error logging out');
         } else {
-            res.redirect('/login');
+            res.redirect('/home');
         }
     });
 });

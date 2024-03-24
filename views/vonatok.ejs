@@ -27,24 +27,8 @@
                 <div class="offcanvas-body">
                   <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="#">Home</a>
+                      <a class="nav-link active" aria-current="page" href="/home">Home</a>
                       
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Dropdown
-                      </a>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li>
-                          <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                      </ul>
                     </li>
                   </ul>
                   <form class="d-flex mt-3" role="search">
@@ -58,17 +42,146 @@
     </header>
     <main>
       <br><br>
+      <% const licensePlates = [
+        {
+            "palyaszam": ['977', '978'],
+            "indexNum": [1]
+        },
+        {
+            "palyaszam": ['975', '976'],
+            "indexNum": [1, 2]
+        },
+        {
+            "palyaszam": ['979', '980'],
+            "indexNum": [2]
+        },
+        {
+            "palyaszam": ['981', '982'],
+            "indexNum": [2, 2]
+        },
+        {
+            "palyaszam": ['989', '990'],
+            "indexNum": [3]
+        },
+        {
+            "palyaszam": ['987', '988'],
+            "indexNum": [3, 2]
+        },
+        {
+            "palyaszam": ['991', '992'],
+            "indexNum": [4]
+        },
+        {
+            "palyaszam": ['993', '994'],
+            "indexNum": [4, 2]
+        },
+        {
+            "palyaszam": ['995', '996'],
+            "indexNum": [5]
+        },
+        {
+            "palyaszam": ['997', '998'],
+            "indexNum": [5, 2]
+        },
+        {
+            "palyaszam": ['1101', '1102'],
+            "indexNum": [6]
+        },
+        {
+            "palyaszam": ['1135', '1136'],
+            "indexNum": [6, 2]
+        },
+        {
+            "palyaszam": ['1103', '1104'],
+            "indexNum": [7]
+        },
+        {
+            "palyaszam": ['1105', '1106'],
+            "indexNum": [7, 2]
+        },
+        {
+            "palyaszam": ['1118', '1117'],
+            "indexNum": [8]
+        },
+        {
+            "palyaszam": ['1116', '1115'],
+            "indexNum": [8, 2]
+        },
+        {
+            "palyaszam": ['1119', '1120'],
+            "indexNum": [9]
+        },
+        {
+            "palyaszam": ['1121', '1122'],
+            "indexNum": [9, 2]
+        },
+        {
+            "palyaszam": ['1127', '1128'],
+            "indexNum": [10]
+        },
+        {
+            "palyaszam": ['1129', '1130'],
+            "indexNum": [10, 2]
+        },
+        {
+            "palyaszam": ['1123', '1124'],
+            "indexNum": [11]
+        },
+        {
+            "palyaszam": ['1139', '1140'],
+            "indexNum": [11, 2]
+        },
+        {
+            "palyaszam": ['1137', '1138'],
+            "indexNum": [12]
+        },
+        {
+            "palyaszam": ['971', '972'],
+            "indexNum": [12, 2]
+        },
+        {
+            "palyaszam": ['1131', '1132'],
+            "indexNum": [13]
+        },
+        {
+            "palyaszam": ['1133', '1134'],
+            "indexNum": [13, 2]
+        },
+        {
+            "palyaszam": ['1146', '1145'],
+            "indexNum": [14]
+        },
+        {
+            "palyaszam": ['1113', '1114'],
+            "indexNum": [14, 2]
+        },
+        {
+            "palyaszam": ['984', '983'],
+            "indexNum": [15]
+        },
+        {
+            "palyaszam": ['1149', '1150'],
+            "indexNum": [15, 2]
+        }
+      ]  
+    %>
+    
       <div class="container-lg">
         <% vehicles.forEach(vehicle => { %>
             <div class="card mb-3">
                 <div class="card-header">
                   <h5 class="card-title font">
-                    <% 
-                    // Split the license plate into two pieces
-                    const [part1, part2] = vehicle.licensePlate.split("-");
-                    // Output the two parts
-                    %> 
-                    <%= part1 %> <%= part2 %>
+                    <%# Splitting into 2 %>
+                    <% const [part1, part2] = vehicle.licensePlate.split("-"); %>
+                    <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
+                    <% items.forEach(item => { %>
+                      <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
+                    <% }); %>
+                    ||
+                    <% if(!vehicle.licensePlate.includes('-')) { %>
+                      3-as kocsi ||
+                    <% } %>
+                    <%= vehicle.licensePlate %>
                   </h5>
                 </div>
                 <div class="card-body">
@@ -109,17 +222,22 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
-                                            <% vehicleStops.forEach(stop => { %>
-                                                <tr>
-                                                    <td><%= stop.stopId %></td>
-                                                    <td>
-                                                      <%= stop.predictedArrivalTime %>
-                                                    </td>
-                                                </tr>
-                                            <% }); %>
-                                        </tbody>
+                                          <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
+                                          <% let validPredictedArrivalTimeExists = false; %>
+                                          <% vehicleStops.forEach((stop, index) => { %>
+                                              <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                                  <tr>
+                                                      <td><%= stop.stopId %></td>
+                                                      <td><%= stop.predictedArrivalTime %></td>
+                                                  </tr>
+                                                  <% validPredictedArrivalTimeExists = true; %>
+                                              <% } %>
+                                          <% }); %>
+                                      </tbody>                                                 
                                     </table>
+                                    <% if (!validPredictedArrivalTimeExists) { %>
+                                      <img src="/icons/celfilmek/NIS.png" alt="Not in service" class="img-fluid rounded">
+                                    <% } %>   
                                 </div>
                             </div>
                         </div>
@@ -132,28 +250,6 @@
     </main>
 </body>
 <script>
-
-  const licensePlates = [
-      ['977-978', '975-976'],
-      ['979-980', '981-982'],
-      ['989-990', '987-988'],
-      ['991-992', '993-994'],
-      ['995-996', '997-998'],
-      ['1101-1102', '1135-1136'],
-      ['1103-1104', '1105-1106'],
-      ['1118-1117', '1116-1115'],
-      ['1119-1120', '1121-1122'],
-      ['1127-1128', '1129-1130'],
-      ['1123-1124', '1139-1140'],
-      ['1137-1138', '971-972'],
-      ['1131-1132', '1133-1134'],
-      ['1146-1145', '1113-1114'],
-      ['984-983', '1149-1150']
-  ];
-
-  console.log(licensePlates);
-
-
   // Disable context menu
   document.addEventListener('contextmenu', function(event) {
             event.preventDefault();

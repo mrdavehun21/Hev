@@ -10,29 +10,29 @@
   <title>HevTracker</title>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/home">Home</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <nav class="navbar bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
+    <div class="container-sm">
+      <h1 class="navbar-brand">Home</h1>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Webpages
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/home/vonatok">H5 Hév szerelvények</a></li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><%= dateForDesign.replace('at', '') %></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/home">Home</a>
+            </li>
+            <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Profile
+                Dropdown
               </a>
               <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/home/vonatok">H5 Hév szerelvények</a></li>
+                  <hr class="dropdown-divider">
                   <% if (loggedIn) { %>
                     <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     <li><button onclick="toggleTheme()">Toggle Theme</button></li>
@@ -41,16 +41,18 @@
                     <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
                     <li><button onclick="toggleTheme()">Toggle Theme</button></li>
                   <% } %>
+                </li>
               </ul>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </nav>
+  <br><br><br>
   <a href="/home/vonatok">
     <img id="image1" class="Animate1" src="../icons/MXA.png"/>
     <img id="image2" class="sin" src="../icons/sin2.png"></a>
-  
 </body>
 </html>
 
