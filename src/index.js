@@ -226,3 +226,11 @@ var server = app.listen(PORT, () => {
     server.setTimeout(5000);
     console.log(`Server is running on port ${PORT}`);
 });
+
+// Schedule repeated calls every 30 seconds
+setInterval(() => {
+    // Call the '/home/vonatok' route handler
+    axios.get('https://palyaszamok.live/home/vonatok')
+        .then(response => console.log('Data fetched successfully:'))
+        .catch(error => console.error('Error fetching data:', error.message));
+}, 30000);
