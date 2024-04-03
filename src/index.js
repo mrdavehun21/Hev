@@ -223,7 +223,7 @@ app.post("/signup", async (req, res) => {
 
 const PORT = process.env.PORT || 3000; // Use environment port or default to 3000
 var server = app.listen(PORT, () => {
-    server.setTimeout(5000);
+    server.setTimeout(500000);
     console.log(`Server is running on port ${PORT}`);
 });
 
