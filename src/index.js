@@ -227,10 +227,15 @@ var server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
+// Fetch data every 30 seconds
+const fetchData = async () => {
+    try {
+        const response = await axios.get('https://palyaszamok.live/home/vonatok');
+        console.log('Data fetched successfully:', response.data);
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+    }
+};
+
 // Schedule repeated calls every 30 seconds
-setInterval(() => {
-    // Call the '/home/vonatok' route handler
-    axios.get('https://palyaszamok.live/home/vonatok')
-        .then(response => console.log('Data fetched successfully:'))
-        .catch(error => console.error('Error fetching data:', error.message));
-}, 30000);
+setInterval(fetchData, 30000);
