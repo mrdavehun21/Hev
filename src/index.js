@@ -61,7 +61,7 @@ function matchTripIdToTripHeadsign(tripId, trips) {
     return trip ? trip.tripHeadsign : null;
 }
 const apiKey = process.env.API_KEY;
-app.get('/home/vonatok', async (req, res) => {
+const fetchAndRenderData = async (req, res) => {
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
             params: {
@@ -168,7 +168,7 @@ app.get('/home/vonatok', async (req, res) => {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
     }
-});
+};
 //-------------------------------------------------------------//
 
 app.get('/logout', (req, res) => {
@@ -227,15 +227,9 @@ var server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Fetch data every 30 seconds
-const fetchData = async () => {
-    try {
-        const response = await axios.get('https://palyaszamok.live/home/vonatok');
-        console.log('Data fetched successfully:', response.data);
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-    }
-};
+// Route to render data initially
+app.get('/home/vonatok', fetchAndRenderData);
 
-// Schedule repeated calls every 30 seconds
-setInterval(fetchData, 30000);
+// Route to fetch and render data every 30 seconds
+setInterval(fetchAndRenderData, 30000);
+
