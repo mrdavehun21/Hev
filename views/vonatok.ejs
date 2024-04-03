@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
     <title>Vonatok</title>
 </head>
-<body class="bg-secondary bg-gradient">
+<body>
     <header>
         <nav class="navbar bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
             <div class="container-sm">
@@ -41,156 +41,41 @@
           </nav>
     </header>
     <main>
-      <br><br>
-      <% const licensePlates = [
-        {
-            "palyaszam": ['977', '978'],
-            "indexNum": [1]
-        },
-        {
-            "palyaszam": ['975', '976'],
-            "indexNum": [1, 2]
-        },
-        {
-            "palyaszam": ['979', '980'],
-            "indexNum": [2]
-        },
-        {
-            "palyaszam": ['981', '982'],
-            "indexNum": [2, 2]
-        },
-        {
-            "palyaszam": ['989', '990'],
-            "indexNum": [3]
-        },
-        {
-            "palyaszam": ['987', '988'],
-            "indexNum": [3, 2]
-        },
-        {
-            "palyaszam": ['991', '992'],
-            "indexNum": [4]
-        },
-        {
-            "palyaszam": ['993', '994'],
-            "indexNum": [4, 2]
-        },
-        {
-            "palyaszam": ['995', '996'],
-            "indexNum": [5]
-        },
-        {
-            "palyaszam": ['997', '998'],
-            "indexNum": [5, 2]
-        },
-        {
-            "palyaszam": ['1101', '1102'],
-            "indexNum": [6]
-        },
-        {
-            "palyaszam": ['1135', '1136'],
-            "indexNum": [6, 2]
-        },
-        {
-            "palyaszam": ['1103', '1104'],
-            "indexNum": [7]
-        },
-        {
-            "palyaszam": ['1105', '1106'],
-            "indexNum": [7, 2]
-        },
-        {
-            "palyaszam": ['1118', '1117'],
-            "indexNum": [8]
-        },
-        {
-            "palyaszam": ['1116', '1115'],
-            "indexNum": [8, 2]
-        },
-        {
-            "palyaszam": ['1119', '1120'],
-            "indexNum": [9]
-        },
-        {
-            "palyaszam": ['1121', '1122'],
-            "indexNum": [9, 2]
-        },
-        {
-            "palyaszam": ['1127', '1128'],
-            "indexNum": [10]
-        },
-        {
-            "palyaszam": ['1129', '1130'],
-            "indexNum": [10, 2]
-        },
-        {
-            "palyaszam": ['1123', '1124'],
-            "indexNum": [11]
-        },
-        {
-            "palyaszam": ['1139', '1140'],
-            "indexNum": [11, 2]
-        },
-        {
-            "palyaszam": ['1137', '1138'],
-            "indexNum": [12]
-        },
-        {
-            "palyaszam": ['971', '972'],
-            "indexNum": [12, 2]
-        },
-        {
-            "palyaszam": ['1131', '1132'],
-            "indexNum": [13]
-        },
-        {
-            "palyaszam": ['1133', '1134'],
-            "indexNum": [13, 2]
-        },
-        {
-            "palyaszam": ['1146', '1145'],
-            "indexNum": [14]
-        },
-        {
-            "palyaszam": ['1113', '1114'],
-            "indexNum": [14, 2]
-        },
-        {
-            "palyaszam": ['984', '983'],
-            "indexNum": [15]
-        },
-        {
-            "palyaszam": ['1149', '1150'],
-            "indexNum": [15, 2]
-        }
-      ]  
-    %>
-    
       <div class="container-lg">
         <% vehicles.forEach(vehicle => { %>
             <div class="card mb-3">
                 <div class="card-header">
                   <h5 class="card-title font">
-                    <%# Splitting into 2 %>
-                    <% const [part1, part2] = vehicle.licensePlate.split("-"); %>
-                    <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
-                    <% items.forEach(item => { %>
-                      <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
-                    <% }); %>
-                    ||
-                    <% if(!vehicle.licensePlate.includes('-')) { %>
-                      3-as kocsi ||
-                    <% } %>
-                    <%= vehicle.licensePlate %>
+
+                    <button type="button" onclick="toggleInfo('<%= vehicle.licensePlate %>')"><%= vehicle.licensePlate %></button>
+
+                    <%# ExtraInfo section to be toggled %>
+                    <div id="extraInfo<%= vehicle.licensePlate %>" style="display: none;">
+                        <%# Splitting into 2 %>
+                        <% const [part1, part2] = vehicle.licensePlate.split("-"); %>
+                        <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
+                        
+                        <% items.forEach(item => { %>
+                            <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
+                        <% }); %>
+                        
+                        <% if(!vehicle.licensePlate.includes('-')) { %>
+                            || 3-as kocsi
+                        <% } %>
+                    </div>
+                    
                   </h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">Jelenleg <%= vehicle.stopName %>
-                      <% if (vehicle.status === 'IN_TRANSIT_TO') { %>
-                          megálló felé közlekedik
-                      <% } else { %>
-                          megállóban áll
-                      <% } %>
+                    <p class="card-text">
+                        <b>
+                            Jelenleg <span class="stopName"><%= vehicle.stopName %></span>
+                            <% if (vehicle.status === 'IN_TRANSIT_TO') { %>
+                                megálló felé közlekedik
+                            <% } else { %>
+                                megállóban áll
+                            <% } %>
+                        </b>
                     </p>
                     <p class="card-text">
                       <% if (vehicle.tripHeadsign == 'Szentendre') { %>
@@ -205,44 +90,46 @@
                     </p>
                     
                     <!-- Collapsible section for Stops -->
-                    <div class="accordion" id="accordionStops<%= vehicle.index %>">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingStops<%= vehicle.index %>">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%= vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%= vehicle.index %>">
-                                    Stops
-                                </button>
-                            </h2>
-                            <div id="collapseStops<%= vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%= vehicle.index %>" data-bs-parent="#accordionStops<%= vehicle.index %>">
-                                <div class="accordion-body">
-                                    <table class="table stop-table pt-5">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Stop ID</th>
-                                                <th scope="col">Predicted Arrival Time</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                          <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
-                                          <% let validPredictedArrivalTimeExists = false; %>
-                                          <% vehicleStops.forEach((stop, index) => { %>
-                                              <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                  <tr>
-                                                      <td><%= stop.stopId %></td>
-                                                      <td><%= stop.predictedArrivalTime %></td>
-                                                  </tr>
-                                                  <% validPredictedArrivalTimeExists = true; %>
-                                              <% } %>
-                                          <% }); %>
-                                      </tbody>                                                 
-                                    </table>
-                                    <% if (!validPredictedArrivalTimeExists) { %>
-                                      <img src="/icons/celfilmek/NIS.png" alt="Not in service" class="img-fluid rounded">
-                                    <% } %>   
+                    <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
+                    <% let validPredictedArrivalTimeExists = vehicleStops.some(stop => stop.predictedArrivalTime !== "Invalid Date"); %>
+
+                    <% if (validPredictedArrivalTimeExists) { %>
+                        <div class="accordion" id="accordionStops<%= vehicle.index %>">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingStops<%= vehicle.index %>">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%= vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%= vehicle.index %>">
+                                        Menetrend
+                                    </button>
+                                </h2>
+                                <div id="collapseStops<%= vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%= vehicle.index %>" data-bs-parent="#accordionStops<%= vehicle.index %>">
+                                    <div class="accordion-body">
+                                        <table class="table stop-table pt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Megálló</th>
+                                                    <th scope="col">Érkezési idő</th>
+                                                    <!-- <th scope="col">Predicted Departure Time</th> -->
+                                                </tr>
+                                            </thead>
+                                            <!-- végállomásnak nincs érkezési ideje csak indulási -->
+                                            <tbody>
+                                                <% vehicleStops.forEach(stop => { %>
+                                                        <tr>
+                                                            <td><%= stop.stopId %></td>
+                                                            <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                                                <td><%= stop.predictedArrivalTime %></td>
+                                                            <% } else { %>
+                                                                <td><%= stop.predictedDepartureTime %></td>
+                                                            <% } %>
+                                                        </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- End Collapsible section for Stops -->
+                    <% } %>
                 </div>
             </div>
         <% }); %>
@@ -250,10 +137,15 @@
     </main>
 </body>
 <script>
-  // Disable context menu
-  document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-    });
+    //extraInfo
+    function toggleInfo(licensePlate) {
+        var codeSection = document.getElementById("extraInfo" + licensePlate);
+        if (codeSection.style.display === "none") {
+            codeSection.style.display = "block";
+        } else {
+            codeSection.style.display = "none";
+        }
+    }
 </script>
 
 </html>

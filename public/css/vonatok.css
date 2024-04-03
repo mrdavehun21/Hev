@@ -1,25 +1,36 @@
-html{
-    margin: 0;
-    
+header {
+    padding-top: 60px;
 }
 
-
 body{
-    background-repeat: no-repeat;
-    background-size: cover;
-    
+    background-color: #F2EFC4;
+}
+
+.card{
+    background-color: #498C4D;
+    color: #F2EFC4;
+}
+
+.stopName{
+    color: #403F3C;
+}
+
+button{
+    background-color: white;
+    color: #108541;
+    border-radius: 10px;
+    border: white 1px solid;
 }
 
 h1{
     font-family: 'Racing Sans One' ; 
     color: #108541 !important;
     text-decoration: underline !important;
-    /*font-size: 25px; */
 }
 
 .font {
     font-family: 'Racing Sans One' ; 
-    color: #108541 !important;
+    color: #F2EFC4 !important;
     text-decoration: none !important;
     font-size: 25px; 
 }
@@ -32,6 +43,6 @@ h1{
     width: auto;
     height: 40px;
     border-radius: 10px;
-    border: black 1px solid;
+    border: white 1px solid;
     -webkit-user-drag: none;
 }

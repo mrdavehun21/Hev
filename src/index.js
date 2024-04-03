@@ -4,6 +4,7 @@ const Collection = require("./mongoDB");
 require('dotenv').config();
 const app = express();
 const axios = require('axios');
+const fs = require('fs');
 
 app.use(express.json());
 app.use(session({
@@ -149,22 +150,19 @@ app.get('/home/vonatok', async (req, res) => {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopHeadsign: stop.stopHeadsign,
+                stopTimes: stop.stopTimes,
                 predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
             stopsByVehicle[vehicleId] = stopsData;
         }
-
-        /*
-        No predictedArrivalTime for Batthyány tér        
-        Selectable stops and displaying departures and arrivals
-        */
-
+        
+        const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
         // Render the EJS file with the data
-        res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign });
+        res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign, licensePlates: licensePlatesData });
     } catch (error) 
     {
         console.error('Error fetching data:', error);
