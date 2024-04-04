@@ -3,33 +3,65 @@ img{
 }
 
 .Animate1 {
-    animation: mymove 10s linear infinite; /* Adjusted duration to cover the entire movement */
     position: absolute;
-    left: -20%; /* Start off the left edge */
+    left: 0;
 }
 
-@keyframes mymove {
-    0%   { left: -20%; } /* Start off the left edge */
-    50%  { left: calc(100% - 100px); } /* Move to the right edge (minus 100px to ensure it's completely off the screen) */
-    100% { left: calc(-20%); } /* Return to the left edge */
+.image-container {
+    position: relative; /* Container for absolute positioning */
+    display: block;
 }
-
 .sin {
-    position:absolute;
-    top: 8.1rem;
-    background-color: transparent;
-    mask-repeat: repeat-y;
+    background-image: url('../icons/sin.png');
+    background-repeat: repeat-x;
+    top: 3.6rem;
+    position: relative;
 }
 
+.invisible-sin {
+    color: transparent;
+    text-decoration: none;
+    font-size: 0%;
+}
 
-body {
-    transition: background-color 0.3s ease;
-    background-color: beige;
-    overflow: hidden;
+@keyframes mymoveMobile {
+    0%   { transform: translateX(-100%); }
+    50%  { transform: translateX(50%); }
+    100% { transform: translateX(-100%); }
+}
+
+@keyframes mymoveDesktop {
+    0%   { transform: translateX(-70%); }
+    50%  { transform: translateX(150%); }
+    100% { transform: translateX(-70%); }
+}
+
+@media (max-width: 768px) {
+    .Animate1 {
+        animation: mymoveMobile 10s linear infinite;
+    }
+    #image1-2 {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) {
+    .Animate1 {
+        animation: mymoveDesktop 15s linear infinite;
+    }
+    #image1-2 {
+        display: inline;
+    }
+    #image1 {
+        display: none;
+    }
+}
+
+body{
+    background-color: #F2EFC4;
 }
 
 .dark-mode {
 background-color: #222;
 color: #fff;
-
 }
