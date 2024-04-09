@@ -19,7 +19,7 @@ app.use(express.static('public'));
 
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn, dateForDesign });
+    res.render('home', { loggedIn });
 });
 
 app.get("/login", (req, res) => {
@@ -32,23 +32,8 @@ app.get("/signup", (req, res) => {
 
 app.get("/home", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn, dateForDesign });
+    res.render('home', { loggedIn });
 });
-
-const dateForDesign = getDateForDesign();
-function getDateForDesign(){
-    const now = new Date();
-    const options = {
-        hour12: false,
-        timeZone: 'Europe/Budapest',
-        hour: '2-digit',
-        minute: '2-digit',
-        weekday: 'short',
-        month: 'long',
-        day: 'numeric'
-    };
-    return now.toLocaleString('en-US', options);
-}
 //----------------------Vonatok------------------//
 
 function matchStopIdToName(stopId, stops) {
@@ -95,13 +80,17 @@ app.get('/home/vonatok', async (req, res) => {
 
         const stopPromises = [];
 
+        //Date for navbar
         function getCurrentDate() {
             const now = new Date();
             const year = now.getFullYear();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed
+            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
+                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
+            const month = monthNames[now.getMonth()];
             const day = now.getDate().toString().padStart(2, '0');
-            return `${year}${month}${day}`;
+            return `${day} ${month} ${year}`;
         }
+        
         function getDateForDesign(){
             const now = new Date();
             const options = {
@@ -109,14 +98,19 @@ app.get('/home/vonatok', async (req, res) => {
                 timeZone: 'Europe/Budapest',
                 hour: '2-digit',
                 minute: '2-digit',
-                weekday: 'short',
+                weekday: 'long',
                 month: 'long',
                 day: 'numeric'
             };
-            return now.toLocaleString('en-US', options);
+            let formattedDate = now.toLocaleString('hu-HU', options);
+            formattedDate = formattedDate.replace(/^\p{L}/u, c => c.toUpperCase());
+            return formattedDate;
         }
+        
         const currentDate = getCurrentDate();
         const dateForDesign = getDateForDesign();
+        //Date for navbar end
+
         // Iterate over each vehicleId and make a request
         for (const vehicle of vehicles) {
             const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
@@ -158,15 +152,30 @@ app.get('/home/vonatok', async (req, res) => {
             // Store stops data indexed by vehicleId
             stopsByVehicle[vehicleId] = stopsData;
         }
-        
+
+        //DirectionFilter
+        const selectedDirection = req.session.selectedDirection || '';
+
         const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
         // Render the EJS file with the data
-        res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign, licensePlates: licensePlatesData });
+        res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign, selectedDirection, licensePlates: licensePlatesData });
     } catch (error) 
     {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
+    }
+});
+
+app.post('/home/vonatok', async (req, res) => {
+    try {
+        // Store the selected tripheadsign in the session
+        req.session.selectedDirection = req.body.selectedDirection;
+        // Redirect back to the vonatok page
+        res.redirect('/home/vonatok');
+    } catch (error) {
+        console.error('Error processing filter:', error);
+        res.status(500).send('Error processing filter');
     }
 });
 //-------------------------------------------------------------//
@@ -181,12 +190,6 @@ app.get('/logout', (req, res) => {
         }
     });
 });
-app.use(session({
-    secret: '1224',
-    resave: false,
-    saveUninitialized: false
-}));
-
 
 app.post("/login", async (req, res) => {
     try {

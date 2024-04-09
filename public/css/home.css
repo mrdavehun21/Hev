@@ -1,3 +1,24 @@
+header {
+    padding-top: 60px;
+}
+
+svg:hover{
+    fill: #108541;
+}
+
+main{
+    padding-bottom: 70px;
+}
+@media (max-width: 430px){
+    svg{
+        display: none;
+    }
+}
+
+footer a:hover{
+    color: #108541 !important;
+}
+
 img{
     -webkit-user-drag: none;
 }
@@ -8,9 +29,10 @@ img{
 }
 
 .image-container {
-    position: relative; /* Container for absolute positioning */
+    position: relative;
     display: block;
 }
+
 .sin {
     background-image: url('../icons/sin.png');
     background-repeat: repeat-x;
@@ -24,30 +46,76 @@ img{
     font-size: 0%;
 }
 
-@keyframes mymoveMobile {
+/* Keyframes */
+@keyframes HevAnimMobile {
     0%   { transform: translateX(-100%); }
-    50%  { transform: translateX(50%); }
+    50% { transform: translateX(-35%); }
     100% { transform: translateX(-100%); }
 }
 
-@keyframes mymoveDesktop {
-    0%   { transform: translateX(-70%); }
-    50%  { transform: translateX(150%); }
-    100% { transform: translateX(-70%); }
+@keyframes HevAnimMobileMid {
+    0%   { transform: translateX(-100%); }
+    50% { transform: translateX(40%); }
+    100% { transform: translateX(-100%); }
 }
 
-@media (max-width: 768px) {
+@keyframes HevAnimDesktop {
+    0%   { transform: translateX(-100%); }
+    50% { transform: translateX(40%); }
+    100% { transform: translateX(-100%); }
+}
+
+@keyframes HevAnimDesktopMost {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Animations */
+.Animate1 {
+    animation: HevAnimMobile 8s linear infinite;
+}
+
+/* Media Queries */
+@media (max-width: 430px) {
+    /* Mobile */
     .Animate1 {
-        animation: mymoveMobile 10s linear infinite;
+        animation: HevAnimMobile 8s linear infinite;
     }
     #image1-2 {
         display: none;
     }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 431px) and (max-width: 999px){
+    /* Mobile and Tablet*/
     .Animate1 {
-        animation: mymoveDesktop 15s linear infinite;
+        animation: HevAnimMobile 8s linear infinite;
+    }
+    #image1-2 {
+        display: inline;
+    }
+    #image1 {
+        display: none;
+    }
+}
+
+@media (min-width: 1000px) {
+    /* Desktop */
+    .Animate1 {
+        animation: HevAnimDesktop 15s linear infinite;
+    }
+    #image1-2 {
+        display: inline;
+    }
+    #image1 {
+        display: none;
+    }
+}
+
+@media (width: 1080px) {
+    /* DesktopMost */
+    .Animate1 {
+        animation: HevAnimDesktopMost 15s linear infinite;
     }
     #image1-2 {
         display: inline;
@@ -58,10 +126,29 @@ img{
 }
 
 body{
-    background-color: #F2EFC4;
+    background-color: #DEAF84;
 }
 
-.dark-mode {
-background-color: #222;
-color: #fff;
+/* Navbar */
+.custom-dropdown-item {
+    display: block;
+    position: relative;
+}
+
+.custom-dropdown-link {
+    background-color: transparent;
+    color: white;
+    border-radius: 5px;
+    border: white 1px solid;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 5px;
+    margin: 15px;
+}
+
+.custom-dropdown-link:hover {
+    background-color: transparent;
+    color: #108541;
+    border: #108541 1px solid;
 }
