@@ -1,10 +1,10 @@
 const express = require("express");
 const session = require('express-session');
-const Collection = require("./mongoDB");
 require('dotenv').config();
 const app = express();
 const axios = require('axios');
 const fs = require('fs');
+const requestIp = require('request-ip');
 
 app.use(express.json());
 app.use(session({
@@ -16,23 +16,106 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
+app.use(requestIp.mw());
 
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render('home', { loggedIn });
 });
 
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-
-app.get("/signup", (req, res) => {
-    res.render("signup");
-});
-
 app.get("/home", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
-    res.render('home', { loggedIn });
+    res.render("home", { loggedIn });
+});
+
+
+//----------------------Megálló------------------//
+app.get('/home/arrivals', async (req, res) => {
+    try {
+        // Get client IP address
+        const clientIp = req.clientIp;
+
+        // Use IP geolocation API to get latitude and longitude
+        const locationData = await getLocationFromIP(clientIp);
+
+        // Extract latitude and longitude from location data
+        const latitude = locationData.latitude;
+        const longitude = locationData.longitude;
+
+        // Make request to BKK API using obtained coordinates
+        const arrivalsResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-location', {
+            params: {
+                groupLimit: 5,
+                minutesBefore: 2,
+                minutesAfter: 30,
+                onlyDepartures: false,
+                limit: 60,
+                lat: latitude,
+                lon: longitude,
+                radius: 1000,
+                minResult: 5,
+                version: 4,
+                includeReferences: true,
+                key: apiKey
+            }
+        });
+
+        const arrivalsData = arrivalsResponse.data;
+
+        const arrivals = arrivalsData.data.list.map((arrival, index) => {
+            // Extracting departure and arrival times from the first stopTime
+            const firstStopTime = arrival.stopTimes[0];
+            const departureTime = new Date(firstStopTime.departureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const predictedDepartureTime = new Date(firstStopTime.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            
+            // Calculate the difference between current time and predicted departure time
+            const currentTime = new Date();
+            const differenceInSeconds = (firstStopTime.predictedDepartureTime * 1000) - currentTime.getTime();
+            const differenceInMinutes = Math.floor(differenceInSeconds / 60000); // Convert milliseconds to minutes
+
+            const headsign = arrival.headsign;
+        
+            // Get route number for the current arrival
+            const routeId = arrival.routeId;
+            const route = arrivalsData.data.references.routes[routeId];
+            const routeNumber = route ? route.shortName : '';
+        
+            // Get stopName for the current arrival
+            const stopId = firstStopTime.stopId;
+            const stop = arrivalsData.data.references.stops[stopId];
+            const stopName = stop ? stop.name : '';
+        
+            return {
+                index: index + 1, // Adding 1 to start index from 1
+                routeNumber: routeNumber,
+                stopName: stopName,
+                departureTime: departureTime,
+                predictedDepartureTime: predictedDepartureTime,
+                headsign: headsign,
+                minutesUntilDeparture: differenceInMinutes // Add the difference in minutes to the arrival object
+            };
+        });
+
+        res.render("arrivals", { arrivals });
+    }
+    catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error fetching data');
+    }
+
+    // Function to get location data from IP address using IP geolocation service
+    async function getLocationFromIP(ip) {
+        try {
+            // Make a request to IP geolocation API
+            const response = await axios.get(`http://ip-api.com/json/${ip}`);
+            // Extract latitude and longitude from the response
+            const { lat, lon } = response.data;
+            return { latitude: lat, longitude: lon };
+        } catch (error) {
+            console.error('Error getting location from IP:', error);
+            throw error;
+        }
+    }
 });
 //----------------------Vonatok------------------//
 
@@ -52,7 +135,6 @@ app.get('/home/vonatok', async (req, res) => {
             params: {
                 routeId: 'BKK_H5',
                 related: false,
-                ifModifiedSince: 1625685137,
                 appVersion: '1.1.abc',
                 version: 2,
                 includeReferences: true,
@@ -117,7 +199,6 @@ app.get('/home/vonatok', async (req, res) => {
                 params: {
                     vehicleId: vehicle.vehicleId,
                     date: currentDate,
-                    ifModifiedSince: 1625685137,
                     appVersion: '1.1.abc',
                     version: 4,
                     includeReferences: true,
@@ -180,6 +261,8 @@ app.post('/home/vonatok', async (req, res) => {
 });
 //-------------------------------------------------------------//
 
+
+//----------------------Bejelentkezés, Regisztráció------------------//
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
@@ -191,11 +274,39 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.post("/login", async (req, res) => {
-    try {
-        const check = await Collection.findOne({ name: req.body.name });
+const { MongoClient } = require('mongodb');
 
-        if (check && check.password === req.body.password && req.headers.referer.includes('/login')) {
+// Connection URI
+const uri = process.env.URI;
+
+// Create a new MongoClient
+const client = new MongoClient(uri, {
+});
+
+let db;
+
+async function connectToMongoDB() {
+  try {
+    // Connect the client to the server
+    await client.connect();
+    console.log("Connected to MongoDB!");
+
+    // Select the database
+    db = client.db("RapidTrack");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+// Call the function to establish connection
+connectToMongoDB();
+
+app.post("/login", async (req, res) => {
+    const { name, password } = req.body;
+    try {
+        const user = await db.collection('loginCollection').findOne({ name });
+
+        if (user && user.password === password && req.headers.referer.includes('/login')) {
             req.session.loggedIn = true; // Set loggedIn flag
             res.redirect("/home");
         } else {
@@ -214,7 +325,7 @@ app.post("/signup", async (req, res) => {
     };
 
     try {
-        await Collection.create(data);
+        await db.collection('loginCollection').insertOne(data);
         console.log("User created successfully:", data);
         res.redirect("/login");
     } catch (error) {
@@ -222,6 +333,14 @@ app.post("/signup", async (req, res) => {
         // Handle error
         res.status(500).send("Error creating user");
     }
+});
+
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.get("/signup", (req, res) => {
+    res.render("signup");
 });
 
 const PORT = process.env.PORT || 3000; // Use environment port or default to 3000

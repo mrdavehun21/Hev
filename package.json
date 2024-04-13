@@ -1,7 +1,5 @@
 {
-  "name": "nodejs-hev",
-  "version": "1.0.0",
-  "description": "",
+  "name": "rapidtrack",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -16,7 +14,8 @@
     "ejs": "^3.1.9",
     "express": "^4.19.1",
     "express-session": "^1.18.0",
-    "mongoose": "^8.2.3",
+    "mongodb": "^6.5.0",
+    "request-ip": "^3.3.0",
     "session": "^0.1.0"
   },
   "devDependencies": {
