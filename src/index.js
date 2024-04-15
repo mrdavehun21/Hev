@@ -150,6 +150,7 @@ app.get('/home/vonatok', async (req, res) => {
             tripId: vehicle.tripId,
             stopId: vehicle.stopId,
             licensePlate: vehicle.licensePlate,
+            stopSequence: vehicle.stopSequence,
             status: vehicle.status,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
@@ -224,8 +225,7 @@ app.get('/home/vonatok', async (req, res) => {
             // Extract stops data for this vehicleId
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
-                stopHeadsign: stop.stopHeadsign,
-                stopTimes: stop.stopTimes,
+                stopSequence: stop.stopSequence,
                 predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
                 predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             }));

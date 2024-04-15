@@ -1,42 +1,54 @@
+/*HEADER*/
 header {
     padding-top: 70px;
 }
-@media (max-width: 430px){
+
+@media (max-width: 430px) {
     header {
         padding-top: 110px;
     }
 }
+/*HEADER END*/
 
-svg:hover{
+/*FOOTER*/
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0; 
+    width: 100%;
+}
+
+svg:hover {
     fill: #108541;
 }
 
-main{
-    padding-bottom: 70px;
-}
-@media (max-width: 430px){
-    svg{
+@media (max-width: 430px) {
+    svg {
         display: none;
     }
-    main{
-        padding-bottom: 120px;
-    }
 }
+/*FOOTER END*/
 
-body{
+body {
     background-color: #F2EFC4;
 }
 
-.card{
+.card {
     background-color: #498C4D;
     color: #F2EFC4;
 }
 
-.stopName{
+.stopName {
     color: #403F3C;
 }
 
-button, .menu-items, .menu-items:hover{
+button,
+.menu-items,
+.menu-items:hover {
     background-color: white;
     color: #108541;
     border-radius: 10px;
@@ -44,34 +56,34 @@ button, .menu-items, .menu-items:hover{
     text-align: center;
 }
 
-h1{
-    font-family: 'Racing Sans One' ; 
+h1 {
+    font-family: 'Racing Sans One';
     color: #108541 !important;
 }
 
-h3{
-    font-family: 'Racing Sans One' ; 
+h3 {
+    font-family: 'Racing Sans One';
     color: #108541 !important;
 }
 
-.offcanvas-title{
+.offcanvas-title {
     border-bottom: 1px solid white;
     width: 100%;
     padding-bottom: 5px;
 }
 
 .font {
-    font-family: 'Racing Sans One'; 
+    font-family: 'Racing Sans One';
     color: #F2EFC4 !important;
     text-decoration: none !important;
-    font-size: 25px; 
+    font-size: 25px;
 }
 
-.hidden{
+.hidden {
     display: none;
 }
 
-.celfilm{
+.celfilm {
     width: auto;
     height: 40px;
     border-radius: 10px;
@@ -90,7 +102,7 @@ h3{
     display: none;
 }
 
-.styled-checkbox + .checkbox-label {
+.styled-checkbox+.checkbox-label {
     display: inline-block;
     padding: 10px 20px;
     background-color: white;
@@ -102,7 +114,7 @@ h3{
     font-size: 18px;
 }
 
-.styled-checkbox:checked + .checkbox-label {
+.styled-checkbox:checked+.checkbox-label {
     background-color: #108541;
     color: white;
 }
@@ -133,3 +145,69 @@ h3{
 .custom-button:hover {
     background-color: #0d6e3f;
 }
+
+/*Menetrend*/
+.accordion-item .accordion-button {
+    font-size: large;
+    font-weight: bold;
+    color: black;
+    background-color: #F2EFC4;
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-top-right-radius: calc(0.25rem - 1px);
+}
+
+.accordion-item .accordion-body {
+    color: black;
+    background-color: #F2EFC4;
+}
+
+table {
+    --bs-table-bg: #F2EFC4 !important;
+    border-color: transparent !important;
+}
+
+td{
+    color: black !important;
+}
+
+th {
+    color: black !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #F2EFC4;
+    color: black;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
+}
+/*Menetrend - End*/
+
+/*Menetrend circle*/
+.circle-icon {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 9999px;
+    border: 3px solid #8A236C;
+    background: white;
+    vertical-align: middle;
+    position: relative; /* Add position relative */
+    z-index: 2; /* Set a higher z-index than the vertical line */
+}
+
+.stops-line {
+    position: relative;
+}
+
+.stops-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 11px; /* Adjusted left position to -3px to align with the left edge of the <tr> */
+    width: 8px; /* Adjusted width to 3px to match the width you want */
+    height: 105%; /* Set height to 100% to cover the full height of the <td> */
+    background-color: #8A236C;
+    z-index: 1; /* Set a lower z-index than the circle icon */
+}
+
+
+/*Menetrend circle - End*/

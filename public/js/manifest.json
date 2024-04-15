@@ -1,0 +1,44 @@
+{
+  "description": "RapidTrack Program főoldala. MXA-kocsik pályaszáma és sok más...",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "../icons/favicon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "../icons/favicon.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
+    },
+    {
+      "src": "../icons/favicon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "../images/BackgroundIcoPhone.png",
+      "type": "image/png",
+      "sizes": "429x952",
+      "purpose": "any"
+    },
+    {
+      "src": "../images/BackgroundIco.png",
+      "type": "image/png",
+      "sizes": "1992x1352",
+      "purpose": "any",
+      "form_factor": "wide"
+    }
+  ],
+  "name": "RapidTrack",
+  "short_name": "RapidTrack",
+  "start_url": "https://palyaszamok.live",
+  "scope": "/",
+  "launch_handler": {
+      "route_to": "existing-client",
+      "navigate_existing_client": "never"
+  }
+}

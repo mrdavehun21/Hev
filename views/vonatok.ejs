@@ -123,20 +123,29 @@
                                                 <tr>
                                                     <th scope="col">Megálló</th>
                                                     <th scope="col">Érkezési idő</th>
-                                                    <!-- <th scope="col">Predicted Departure Time</th> -->
                                                 </tr>
                                             </thead>
-                                            <!-- végállomásnak nincs érkezési ideje csak indulási -->
                                             <tbody>
                                                 <% vehicleStops.forEach(stop => { %>
-                                                        <tr>
-                                                            <td><%= stop.stopId %></td>
-                                                            <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                <td><%= stop.predictedArrivalTime %></td>
+                                                    <tr>
+                                                        <td class="stops-line">
+                                                            <%# Potty %>
+                                                            <span class="circle-icon"></span>
+                                                             <%# StopName colored %>
+                                                             <% if (vehicle.stopSequence >= stop.stopSequence) { %>
+                                                                <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                                                    <span style="color: #8A236C;"><%= stop.stopId %></span>
+                                                                    <td><span style="color: #8A236C;"><%= stop.predictedArrivalTime %></span></td>
+                                                                <% } else { %>
+                                                                    <span style="color: #8A236C;"><%= stop.stopId %></span>
+                                                                    <td><span style="color: #8A236C;"><%= stop.predictedDepartureTime %></span></td>
+                                                                <% } %>
                                                             <% } else { %>
-                                                                <td><%= stop.predictedDepartureTime %></td>
+                                                                <%= stop.stopId %>
+                                                                <td><%= stop.predictedArrivalTime %></td>
                                                             <% } %>
-                                                        </tr>
+                                                        </td>
+                                                    </tr>
                                                 <% }); %>
                                             </tbody>
                                         </table>
@@ -150,7 +159,7 @@
         <% }); %>
     </div>    
     </main>
-    <footer class="d-flex fixed-bottom bg-dark flex-wrap justify-content-center align-items-center px-5 py-3 border-top mb-0">
+    <footer class="d-flex bg-dark flex-wrap justify-content-center align-items-center px-5 py-3 border-top mb-0">
     <p class="col-12 col-md-4 mb-3 mb-md-0 text-center text-md-start text-light">© 2024 RapidTrack</p>
   
     <a href="/home" class="col-12 col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 link-body-emphasis text-decoration-none">
