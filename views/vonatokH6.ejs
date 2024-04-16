@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="../css/vonatok.css">
+    <link rel="stylesheet" href="../../css/vonatokLines.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
-    <title>Vonatok</title>
-    <link rel="icon" type="image/png" href="../icons/favicon.png">
-    <meta name="description" content="MXA-kocsik pályaszáma a H5-ös HÉV vonalán">
+    <title>Vonatok / H6</title>
+    <link rel="icon" type="image/png" href="../../icons/favicon.png">
+    <meta name="description" content="Motorkocsik pályaszáma a H6-os HÉV vonalán">
 </head>
 <body>
     <header>
         <nav class="navbar bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
             <div class="container-sm">
-              <h1 class="navbar-brand">MXA Motorkocsik</h1>
-              <h3 class="navbar-brand">Összesen: <%= vehicles.length %> szerelvény</h3>
+              <h1 class="navbar-brand H6">Motorkocsik</h1>
+              <h3 class="navbar-brand H6">Összesen: <%# vehicles.length %> szerelvény</h3>
               <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
                 <div class="offcanvas-header">
-                  <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><%= dateForDesign %></h5>
+                  <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><%# dateForDesign %></h5>
                   <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
@@ -37,18 +37,17 @@
                         <label for="autoReloadCheckbox" class="checkbox-label">Folyamatos frissítés engedélyezése</label>
                     </li>                   
                     <%# Select tripHeadsign %>
-                    <li class="custom-form">
-                        <form action="/home/vonatok" method="POST">
+                    <!-- <li class="custom-form">
+                        <form action="/home/vonatokH6" method="POST">
                             <label for="directionSelect">Végállomás:</label>
                             <select id="directionSelect" name="selectedDirection" class="custom-select">
                                 <option value="">Összes szerelvény</option>
-                                <option value="Szentendre">Szentendre</option>
-                                <option value="Békásmegyer">Békásmegyer</option>
-                                <option value="Batthyány tér">Batthyány tér</option>
+                                <option value="Ráckeve">Ráckeve</option>
+                                <option value="Közvágóhíd">Közvágóhíd</option>
                             </select>
                             <button type="submit" class="custom-button">OK</button>
                         </form>                        
-                    </li>
+                    </li> -->
                   </ul>
                 </div>
               </div>
@@ -57,66 +56,47 @@
     </header>
     <main>
       <div class="container-lg">
-        <% const filteredVehicles = selectedDirection ? vehicles.filter(vehicle => vehicle.tripHeadsign === selectedDirection) : vehicles; %>
+        <%# const filteredVehicles = selectedDirection ? vehicles.filter(vehicle => vehicle.tripHeadsign === selectedDirection) : vehicles; %>
 
-        <% filteredVehicles.forEach(vehicle => { %>
+        <%# filteredVehicles.forEach(vehicle => { %>
             <div class="card mb-3">
                 <div class="card-header">
                   <h5 class="card-title font">
-
-                    <button type="button" onclick="toggleInfo('<%= vehicle.licensePlate %>')"><%= vehicle.licensePlate %></button>
-
-                    <%# ExtraInfo section to be toggled %>
-                    <div id="extraInfo<%= vehicle.licensePlate %>" style="display: none;">
-                        <%# Splitting into 2 %>
-                        <% const [part1, part2] = vehicle.licensePlate.split("-"); %>
-                        <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
-                        
-                        <% items.forEach(item => { %>
-                            <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
-                        <% }); %>
-                        
-                        <% if(!vehicle.licensePlate.includes('-')) { %>
-                            || 3-as kocsi
-                        <% } %>
-                    </div>
-                    
+                    <!-- <button type="button"><%# vehicle.licensePlate %></button> -->
                   </h5>
                 </div>
                 <div class="card-body">
                     <p class="card-text">
                         <b>
-                            Jelenleg <span class="stopName"><%= vehicle.stopName %></span>
-                            <% if (vehicle.status === 'IN_TRANSIT_TO') { %>
+                            Jelenleg <span class="stopName"><%# vehicle.stopName %></span>
+                            <%# if (vehicle.status === 'IN_TRANSIT_TO') { %>
                                 megálló felé közlekedik
-                            <% } else { %>
+                            <%# } else { %>
                                 megállóban áll
-                            <% } %>
+                            <%# } %>
                         </b>
                     </p>
                     <p class="card-text">
-                        <% if (vehicle.tripHeadsign == 'Szentendre') { %>
-                            <img src="../icons/celfilmek/Endre.png" alt="Szentendre" class="celfilm">
-                        <% } else if (vehicle.tripHeadsign === 'Békásmegyer') { %>
-                            <img src="../icons/celfilmek/Bekas.png" alt="Békásmegyer" class="celfilm">
-                        <% } else if (vehicle.tripHeadsign === 'Batthyány tér') { %>
-                            <img src="../icons/celfilmek/Bter_old.png" alt="Batthyány tér" class="celfilm">
-                        <% } %>
+                        <%# if (vehicle.tripHeadsign == 'Szentendre') { %>
+                            <img src="../../icons/celfilmek/#" alt="Ráckeve" class="celfilm">
+                        <%# } else if (vehicle.tripHeadsign === 'Batthyány tér') { %>
+                            <img src="../../icons/celfilmek/#" alt="Közvágóhíd" class="celfilm">
+                        <%# } %>
                     </p>
                     
                     <!-- Collapsible section for Stops -->
-                    <% const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
-                    <% let validPredictedArrivalTimeExists = vehicleStops.some(stop => stop.predictedArrivalTime !== "Invalid Date"); %>
+                    <%# const vehicleStops = stopsByVehicle[vehicle.vehicleId] || []; %>
+                    <%# let validPredictedArrivalTimeExists = vehicleStops.some(stop => stop.predictedArrivalTime !== "Invalid Date"); %>
 
-                    <% if (validPredictedArrivalTimeExists) { %>
-                        <div class="accordion" id="accordionStops<%= vehicle.index %>">
+                    <%# if (validPredictedArrivalTimeExists) { %>
+                        <div class="accordion" id="accordionStops<%# vehicle.index %>">
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingStops<%= vehicle.index %>">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%= vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%= vehicle.index %>">
+                                <h2 class="accordion-header" id="headingStops<%# vehicle.index %>">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%# vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%# vehicle.index %>">
                                         Menetrend
                                     </button>
                                 </h2>
-                                <div id="collapseStops<%= vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%= vehicle.index %>" data-bs-parent="#accordionStops<%= vehicle.index %>">
+                                <div id="collapseStops<%# vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%# vehicle.index %>" data-bs-parent="#accordionStops<%# vehicle.index %>">
                                     <div class="accordion-body">
                                         <table class="table stop-table pt-5">
                                             <thead>
@@ -126,37 +106,38 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <% vehicleStops.forEach(stop => { %>
+                                                <%# vehicleStops.forEach(stop => { %>
                                                     <tr>
-                                                        <td class="stops-line">
-                                                            <%# Potty %>
-                                                            <span class="circle-icon"></span>
-                                                             <%# StopName colored %>
-                                                             <% if (vehicle.stopSequence >= stop.stopSequence) { %>
-                                                                <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                    <span style="color: #8A236C;"><%= stop.stopId %></span>
-                                                                    <td><span style="color: #8A236C;"><%= stop.predictedArrivalTime %></span></td>
-                                                                <% } else { %>
-                                                                    <span style="color: #8A236C;"><%= stop.stopId %></span>
-                                                                    <td><span style="color: #8A236C;"><%= stop.predictedDepartureTime %></span></td>
-                                                                <% } %>
-                                                            <% } else { %>
-                                                                <%= stop.stopId %>
-                                                                <td><%= stop.predictedArrivalTime %></td>
-                                                            <% } %>
+                                                        <td class="stops-lineH6">
+                                                            <%# colored circle %>
+                                                            <span class="circle-iconH6"></span>
+                                                            <%# StopName colored %>
+                                                            <%# if (vehicle.stopSequence >= stop.stopSequence) { %>
+                                                                <%# if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                                                    <span class="leftstopsH6"><%# stop.stopId %></span>
+                                                                    <td><span class="leftstopsH6"><%# stop.predictedArrivalTime %></span></td>
+                                                                <%# } else { %>
+                                                                    <span class="leftstopsH6"><%# stop.stopId %></span>
+                                                                    <td><span class="leftstopsH6"><%# stop.predictedDepartureTime %></span></td>
+                                                                <%# } %>
+                                                            <%# StopName not colored %>
+                                                            <%# } else { %>
+                                                                <%# stop.stopId %>
+                                                                <td><%# stop.predictedArrivalTime %></td>
+                                                            <%# } %>
                                                         </td>
                                                     </tr>
-                                                <% }); %>
+                                                <%# }); %>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <% } %>
+                    <%# } %>
                 </div>
             </div>
-        <% }); %>
+        <%# }); %>
     </div>    
     </main>
     <footer class="d-flex bg-dark flex-wrap justify-content-center align-items-center px-5 py-3 border-top mb-0">
@@ -178,15 +159,6 @@
 
 
     <script>
-        //extraInfo
-        function toggleInfo(licensePlate) {
-            var codeSection = document.getElementById("extraInfo" + licensePlate);
-            if (codeSection.style.display === "none") {
-                codeSection.style.display = "block";
-            } else {
-                codeSection.style.display = "none";
-            }
-        }
         function reloadPage() {
             location.reload();
         }

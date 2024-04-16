@@ -28,6 +28,9 @@ app.get("/home", (req, res) => {
     res.render("home", { loggedIn });
 });
 
+app.get("/home/vonatokH6", (req, res) => {
+    res.render("vonatokH6");
+});
 
 //----------------------Megálló------------------//
 app.get('/home/arrivals', async (req, res) => {
@@ -129,7 +132,7 @@ function matchTripIdToTripHeadsign(tripId, trips) {
     return trip ? trip.tripHeadsign : null;
 }
 const apiKey = process.env.API_KEY;
-app.get('/home/vonatok', async (req, res) => {
+app.get('/home/vonatokH5', async (req, res) => {
     try {
         const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
             params: {
@@ -240,7 +243,7 @@ app.get('/home/vonatok', async (req, res) => {
         const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
         // Render the EJS file with the data
-        res.render('vonatok', { vehicles, stopsByVehicle, currentDate, dateForDesign, selectedDirection, licensePlates: licensePlatesData });
+        res.render('vonatokH5', { vehicles, stopsByVehicle, currentDate, dateForDesign, selectedDirection, licensePlates: licensePlatesData });
     } catch (error) 
     {
         console.error('Error fetching data:', error);
@@ -248,12 +251,12 @@ app.get('/home/vonatok', async (req, res) => {
     }
 });
 
-app.post('/home/vonatok', async (req, res) => {
+app.post('/home/vonatokH5', async (req, res) => {
     try {
         // Store the selected tripheadsign in the session
         req.session.selectedDirection = req.body.selectedDirection;
         // Redirect back to the vonatok page
-        res.redirect('/home/vonatok');
+        res.redirect('/home/vonatokH5');
     } catch (error) {
         console.error('Error processing filter:', error);
         res.status(500).send('Error processing filter');
