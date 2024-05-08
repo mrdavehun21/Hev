@@ -8,22 +8,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
-    <title>Vonatok / H6</title>
+    <title>Vonatok / H8</title>
     <link rel="icon" type="image/png" href="../icons/favicon.png">
-    <meta name="description" content="MXA és MX-motorkocsik pályaszáma a H6-os HÉV vonalán">
+    <meta name="description" content="MXA és MX-motorkocsik pályaszáma a H8-as HÉV vonalán">
 </head>
 <body>
   <header>
     <nav class="navbar bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
       <div class="container-sm">
-        <h1 class="navbar-brand Hev6">MXA és MX Motorkocsik-H6</h1>
-        <h3 class="navbar-brand Hev6">Összesen: <%= vehiclesH6.length %> szerelvény</h3>
+        <h1 class="navbar-brand Hev8">MXA és MX Motorkocsik-H8</h1>
+        <h3 class="navbar-brand Hev8">Összesen: <%= vehiclesH6.length %> szerelvény</h3>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">H6-os HÉV</h5>
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">H8-as HÉV</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
@@ -33,13 +33,12 @@
               </li>                  
               <%# Select tripHeadsign %>
                <li class="custom-form">
-                  <form action="/home/vonatokH6" method="POST">
+                  <form action="/home/vonatokH8" method="POST">
                       <label for="directionSelect">Végállomás:</label>
-                      <select id="directionSelect" name="selectedDirectionH6" class="custom-select">
+                      <select id="directionSelect" name="selectedDirectionH8" class="custom-select">
                           <option value="">Összes szerelvény</option>
-                          <option value="Közvágóhíd">Közvágóhíd</option>
-                          <option value="Ráckeve">Ráckeve</option>
-                          <option value="Tököl">Tököl</option>
+                          <option value="Örs vezér tere">Örs vezér tere</option>
+                          <option value="Gödöllő">Gödöllő</option>
                       </select>
                       <button type="submit" class="custom-button">OK</button>
                   </form>                        
@@ -51,8 +50,8 @@
     </nav>
   </header>
   <main>
-    <div id="vehicles-containerH6" class="container-lg">
-      <% const filteredVehicles = selectedDirectionH6 ? vehiclesH6.filter(vehicle => vehicle.tripHeadsign === selectedDirectionH6) : vehiclesH6; %>
+    <div id="vehicles-containerH8" class="container-lg">
+      <% const filteredVehicles = selectedDirectionH8 ? vehiclesH8.filter(vehicle => vehicle.tripHeadsign === selectedDirectionH8) : vehiclesH8; %>
 
       <% filteredVehicles.forEach(vehicle => { %>
           <div class="card mb-3">
@@ -83,7 +82,7 @@
                   </p> -->
                   
                   <!-- Collapsible section for Stops -->
-                  <% const vehicleStops = stopsByVehicleH6[vehicle.vehicleId] || []; %>
+                  <% const vehicleStops = stopsByVehicleH8[vehicle.vehicleId] || []; %>
                   <% let validPredictedArrivalTimeExists = vehicleStops.some(stop => stop.predictedArrivalTime !== "Invalid Date"); %>
 
                   <% if (validPredictedArrivalTimeExists) { %>
@@ -106,31 +105,31 @@
                                           <tbody>
                                               <% vehicleStops.forEach(stop => { %>
                                                   <tr>
-                                                      <td class="stops-lineH6">
+                                                      <td class="stops-lineH8">
                                                           <%# colored circle %>
-                                                          <span class="circle-iconH6"></span>
+                                                          <span class="circle-iconH8"></span>
                                                           <%# StopName colored when arriving to stop%>
                                                           <% if (vehicle.stopSequence > stop.stopSequence && vehicle.status === 'IN_TRANSIT_TO') { %>
                                                               <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                  <span class="leftstopsH6"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH6"><%= stop.predictedArrivalTime %></span></td>
+                                                                  <span class="leftstopsH8"><%= stop.stopId %></span>
+                                                                  <td><span class="leftstopsH8"><%= stop.predictedArrivalTime %></span></td>
                                                               <% } else { %>
-                                                                  <span class="leftstopsH6"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH6"><%= stop.predictedDepartureTime %></span></td>
+                                                                  <span class="leftstopsH8"><%= stop.stopId %></span>
+                                                                  <td><span class="leftstopsH8"><%= stop.predictedDepartureTime %></span></td>
                                                               <% } %>
                                                           <%# StopName colored when arrived to stop %>
                                                           <% } else if (vehicle.stopSequence >= stop.stopSequence && vehicle.status !== 'IN_TRANSIT_TO') { %>
                                                               <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                  <span class="leftstopsH6"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH6"><%= stop.predictedArrivalTime %></span></td>
+                                                                  <span class="leftstopsH8"><%= stop.stopId %></span>
+                                                                  <td><span class="leftstopsH8"><%= stop.predictedArrivalTime %></span></td>
                                                               <% } else { %>
-                                                                  <span class="leftstopsH6"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH6"><%= stop.predictedDepartureTime %></span></td>
+                                                                  <span class="leftstopsH8"><%= stop.stopId %></span>
+                                                                  <td><span class="leftstopsH8"><%= stop.predictedDepartureTime %></span></td>
                                                               <% } %>
                                                           <%# StopName not colored %>
                                                           <% } else { %>
                                                             <span class="notleftstops"><%= stop.stopId %></span>
-                                                              <td><%= stop.predictedArrivalTime %></td>
+                                                              <td><span class="notleftstops"><%= stop.predictedArrivalTime %></span></td>
                                                           <% } %>
                                                       </td>
                                                   </tr>
@@ -168,7 +167,7 @@
     // Function to fetch data from the server using AJAX
     function fetchData() {
         // Make a GET request to the server
-        fetch('/home/vonatokH6')
+        fetch('/home/vonatokH8')
             .then(response => response.text())
             .then(data => {
                 // Save the currently expanded accordion item IDs
@@ -178,7 +177,7 @@
                 });
 
                 // Update the vehicles container with the received HTML data
-                document.getElementById('vehicles-containerH6').innerHTML = data;
+                document.getElementById('vehicles-containerH8').innerHTML = data;
 
                 // Restore the state of expanded accordion items
                 expandedItems.forEach(itemId => {

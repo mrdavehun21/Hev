@@ -130,9 +130,44 @@ body{
 }
 
 /* Navbar */
-.custom-dropdown-item {
-    display: block;
-    position: relative;
+hr{
+    height: 4px;
+    border: none;
+    border-radius: 2px;
+    background-color: gray;
+}
+
+.dropdown-hev5, .dropdown-hev6, .dropdown-hev7, .dropdown-hev8{
+    background-color: transparent;
+    color: white;
+    border-radius: 5px;
+    border: white 1px solid;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 5px;
+    margin: 15px;
+}
+
+.dropdown-hev5:hover{
+    background-color: transparent;
+    color: #108541;
+    border: #108541 1px solid;
+}
+.dropdown-hev6:hover{
+    background-color: transparent;
+    color: rgb(123, 68, 0);
+    border: rgb(123, 68, 0) 1px solid;
+}
+.dropdown-hev7:hover{
+    background-color: transparent;
+    color: rgb(238, 113, 1);
+    border: rgb(238, 113, 1) 1px solid;
+}
+.dropdown-hev8:hover{
+    background-color: transparent;
+    color: rgb(237, 110, 134);
+    border: rgb(237, 110, 134) 1px solid;
 }
 
 .custom-dropdown-link {

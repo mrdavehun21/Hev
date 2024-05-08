@@ -24,20 +24,25 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <ul class="navbar-nav justify-content-center flex-grow-1 pe-3">
               <% if (loggedIn) { %>
-                  <li><a href="/logout" class="custom-dropdown-link"><b>Kijelentkezés</b></a></li>
+                  <li class="d-flex align-items-center">
+                    <a href="/logout" class="custom-dropdown-link"><b>Kijelentkezés</b></a>
+                  </li>
               <% } else { %>
                   <li class="d-flex align-items-center">
-                      <a href="/login" class="custom-dropdown-link"><b>Bejelentkezés</b></a>
-                  </li>
-                  <li>
+                    <a href="/login" class="custom-dropdown-link"><b>Bejelentkezés</b></a>
                     <a href="/signup" class="custom-dropdown-link"><b>Regisztráció</b></a>
                   </li>
               <% } %>
-              <!-- <li>
-                <a href="/home/arrivals">Megálló</a>
-              </li> -->
+              <hr>
+                <a class="dropdown-hev5" href="/home/vonatokH5">H5-ös HÉV</a>
+
+                <a class="dropdown-hev6" href="/home/vonatokH6">H6-os HÉV</a>
+
+                <a class="dropdown-hev7" href="/home/vonatokH7">H7-es HÉV</a>
+
+                <a class="dropdown-hev8" href="/home/vonatokH8">H8-as HÉV</a>
             </ul>
           </div>
         </div>

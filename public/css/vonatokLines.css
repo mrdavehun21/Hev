@@ -1,18 +1,27 @@
 /*HEADER*/
 header {
-    padding-top: 70px;
+    padding-top: 35px;
 }
 
 @media (max-width: 430px) {
     header {
-        padding-top: 110px;
+        padding-top: 55px;
     }
 }
 /*HEADER END*/
 
+.offcanvas{
+    padding-top: 3%;
+}
+@media (max-width: 430px) {
+    .offcanvas{
+        padding-top: 22%;
+    }
+}
+
 /*FOOTER*/
 main{
-    padding-bottom: 70px;
+    padding-bottom: 35px;
 }
 
 svg:hover {
@@ -21,7 +30,7 @@ svg:hover {
 
 @media (max-width: 430px) {
     footer {
-        position: static !important;
+        visibility: hidden;
     }
     svg {
         display: none;
@@ -52,9 +61,24 @@ button,
     text-align: center;
 }
 
-.H5{
+.Hev5{
     font-family: 'Racing Sans One';
     color: #108541 !important;
+}
+
+.Hev6{
+    font-family: 'Racing Sans One';
+    color: #7b4400 !important;
+}
+
+.Hev7{
+    font-family: 'Racing Sans One';
+    color: #ee7101 !important;
+}
+
+.Hev8{
+    font-family: 'Racing Sans One';
+    color: #ed6e86 !important;
 }
 
 .offcanvas-title {
@@ -171,8 +195,40 @@ td, th {
 .leftstopsH5 {
     color: #8A236C;
 }
+@media(max-width: 430px){
+    #vehicles-containerH5, .card-body{
+        padding: 1% !important;
+    }
+}
 
-/* Circle Icon Styling */
+.leftstopsH6 {
+    color: #7b4400;
+}
+@media(max-width: 430px){
+    #vehicles-containerH6, .card-body{
+        padding: 1% !important;
+    }
+}
+
+.leftstopsH7 {
+    color: #ee7101;
+}
+@media(max-width: 430px){
+    #vehicles-containerH7, .card-body{
+        padding: 1% !important;
+    }
+}
+
+.leftstopsH8 {
+    color: #ed6e86;
+}
+@media(max-width: 430px){
+    #vehicles-containerH8, .card-body{
+        padding: 1% !important;
+    }
+}
+
+/*-------H5-------*/
 .circle-iconH5 {
     width: 15px;
     height: 15px;
@@ -198,5 +254,92 @@ td, th {
     width: 8px;
     height: 105%;
     background-color: #8A236C;
+    z-index: 1;
+}
+
+/*-----H6-------*/
+.circle-iconH6 {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 3px solid #7b4400;
+    background: white;
+    vertical-align: middle;
+    position: relative;
+    z-index: 2;
+}
+
+.stops-lineH6 {
+    position: relative;
+    height: 15px;
+}
+
+.stops-lineH6::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 8px;
+    height: 105%;
+    background-color: #7b4400;
+    z-index: 1;
+}
+
+/*-------H7-------*/
+.circle-iconH7 {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 3px solid #ee7101;
+    background: white;
+    vertical-align: middle;
+    position: relative;
+    z-index: 2;
+}
+
+.stops-lineH7 {
+    position: relative;
+    height: 15px;
+}
+
+.stops-lineH7::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 8px;
+    height: 105%;
+    background-color: #ee7101;
+    z-index: 1;
+}
+
+/*-------H8-------*/
+.circle-iconH8 {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 3px solid #ed6e86;
+    background: white;
+    vertical-align: middle;
+    position: relative;
+    z-index: 2;
+}
+
+.stops-lineH8 {
+    position: relative;
+    height: 15px;
+}
+
+.stops-lineH8::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 8px;
+    height: 105%;
+    background-color: #ed6e86;
     z-index: 1;
 }
