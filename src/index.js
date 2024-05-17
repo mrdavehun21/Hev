@@ -76,6 +76,7 @@ async function fetchDataFromAPIH5() {
             licensePlate: vehicle.licensePlate,
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
+            label: vehicle.label,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
         }));
@@ -115,8 +116,9 @@ async function fetchDataFromAPIH5() {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
@@ -184,7 +186,7 @@ app.get('/home/vonatokH5', async (req, res) => {
 app.post('/home/vonatokH5', async (req, res) => {
     try {
         // Store the selected tripheadsign in the session
-        req.session.selectedDirection = req.body.selectedDirection;
+        req.session.selectedDirectionH5 = req.body.selectedDirectionH5;
         // Redirect back to the vonatok page
         res.redirect('/home/vonatokH5');
     } catch (error) {
@@ -219,6 +221,7 @@ async function fetchDataFromAPIH6() {
             licensePlate: vehicle.licensePlate,
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
+            label: vehicle.label,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
         }));
@@ -258,8 +261,8 @@ async function fetchDataFromAPIH6() {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
@@ -352,6 +355,7 @@ async function fetchDataFromAPIH7() {
             licensePlate: vehicle.licensePlate,
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
+            label: vehicle.label,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
         }));
@@ -391,8 +395,8 @@ async function fetchDataFromAPIH7() {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
@@ -485,6 +489,7 @@ async function fetchDataFromAPIH8() {
             licensePlate: vehicle.licensePlate,
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
+            label: vehicle.label,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
         }));
@@ -524,8 +529,8 @@ async function fetchDataFromAPIH8() {
             const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
                 stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
                 stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
             }));
 
             // Store stops data indexed by vehicleId
@@ -591,6 +596,141 @@ app.post('/home/vonatokH8', async (req, res) => {
         res.status(500).send('Error processing filter');
     }
 });
+
+//--------------H9------------------//
+// Function to fetch data from API
+async function fetchDataFromAPIH9() {
+    try {
+        const apiKey = process.env.API_KEY;
+        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
+            params: {
+                routeId: 'BKK_H9',
+                related: false,
+                appVersion: '1.1.abc',
+                version: 2,
+                includeReferences: true,
+                key: apiKey
+            }
+        });
+        const vehiclesData = vehiclesResponse.data;
+
+        // Extracting license plate section and matching tripId to tripHeadsign
+        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
+            index: index + 1,
+            vehicleId: vehicle.vehicleId,
+            tripId: vehicle.tripId,
+            stopId: vehicle.stopId,
+            licensePlate: vehicle.licensePlate,
+            stopSequence: vehicle.stopSequence,
+            status: vehicle.status,
+            label: vehicle.label,
+            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
+            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
+        }));
+
+        // Create stopsByVehicle object to store stops data indexed by vehicleId
+        const stopsByVehicle = {};
+
+        // Array to store promises for each vehicle's stop data
+        const stopPromises = [];
+
+        // Iterate over each vehicleId and make a request
+        for (const vehicle of vehicles) {
+            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
+                params: {
+                    vehicleId: vehicle.vehicleId,
+                    date: getCurrentDate(), // Fetching current date
+                    appVersion: '1.1.abc',
+                    version: 4,
+                    includeReferences: true,
+                    key: apiKey
+                }
+            });
+
+            stopPromises.push(stopPromise);
+        }
+
+        // Wait for all requests to complete
+        const stopResponses = await Promise.all(stopPromises);
+
+        // Process each stop response
+        for (let i = 0; i < stopResponses.length; i++) {
+            const stopResponse = stopResponses[i];
+            const vehicleId = vehicles[i].vehicleId;
+            const stopTimesData = stopResponse.data;
+
+            // Extract stops data for this vehicleId
+            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
+                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
+                stopSequence: stop.stopSequence,
+                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
+                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
+            }));
+
+            // Store stops data indexed by vehicleId
+            stopsByVehicle[vehicleId] = stopsData;
+        }
+
+        const currentDate = getCurrentDate();
+
+        // Store the data in session
+        app.locals.vehiclesH9 = vehicles;
+        app.locals.stopsByVehicleH9 = stopsByVehicle;
+        app.locals.currentDateH9 = currentDate;
+
+        // Date functions
+        function getCurrentDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
+                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
+            const month = monthNames[now.getMonth()];
+            const day = now.getDate().toString().padStart(2, '0');
+            return `${day} ${month} ${year}`;
+        }
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+// Function to fetch data from API and start interval
+async function startFetchingDataH9() {
+    // Fetch data immediately
+    await fetchDataFromAPIH9();
+
+    // Set interval to fetch data every 30 seconds
+    setInterval(async () => {
+        await fetchDataFromAPIH9();
+    }, 30000); // 30 seconds in milliseconds
+}
+
+// Start fetching data
+startFetchingDataH9();
+
+// Routes
+app.get('/home/vonatokH9', async (req, res) => {
+    try {
+        const vehiclesH9 = app.locals.vehiclesH9 || [];
+        const stopsByVehicleH9 = app.locals.stopsByVehicleH9 || {};
+        const selectedDirectionH9 = req.session.selectedDirectionH9 || '';
+
+        res.render('vonatokH9', { vehiclesH9, stopsByVehicleH9, selectedDirectionH9 });
+    } catch (error) {
+        console.error('Error rendering page:', error);
+        res.status(500).send('Error rendering page');
+    }
+});
+app.post('/home/vonatokH9', async (req, res) => {
+    try {
+        req.session.selectedDirectionH9 = req.body.selectedDirectionH9;
+
+        res.redirect('/home/vonatokH9');
+    } catch (error) {
+        console.error('Error processing filter:', error);
+        res.status(500).send('Error processing filter');
+    }
+});
+
 //----------------------Vonatok_END-------------------------------------------//
 
 

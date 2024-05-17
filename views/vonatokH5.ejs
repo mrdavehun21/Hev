@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
     <title>Vonatok / H5</title>
     <link rel="icon" type="image/png" href="../icons/favicon.png">
-    <meta name="description" content="MXA-motorkocsik pályaszáma a H5-ös HÉV vonalán">
+    <meta name="description" content="Motorkocsik pályaszáma a H5-ös HÉV vonalán">
 </head>
 <body>
   <header>
@@ -52,30 +52,41 @@
   </header>
   <main>
     <div id="vehicles-container" class="container-lg">
-      <% const filteredVehicles = selectedDirectionH5 ? vehicles.filter(vehicle => vehicle.tripHeadsign === selectedDirection) : vehiclesH5; %>
+      <% const filteredVehicles = selectedDirectionH5 ? vehiclesH5.filter(vehicle => vehicle.tripHeadsign === selectedDirectionH5) : vehiclesH5; %>
 
       <% filteredVehicles.forEach(vehicle => { %>
           <div class="card mb-3">
               <div class="card-header">
                 <h5 class="card-title font">
-
-                  <button type="button" onclick="toggleInfo('<%= vehicle.licensePlate %>')"><%= vehicle.licensePlate %></button>
-
-                  <%# ExtraInfo section to be toggled %>
-                  <div id="extraInfo<%= vehicle.licensePlate %>" style="display: none;">
+                    <button type="button" onclick="toggleInfo('<%= vehicle.licensePlate %>')"><%= vehicle.licensePlate %></button>
+                    
+                    <%# ExtraInfo section to be toggled %>
+                    <div id="extraInfo<%= vehicle.licensePlate %>" style="display: none;">
                       <%# Splitting into 2 %>
                       <% const [part1, part2] = vehicle.licensePlate.split("-"); %>
                       <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
                       
                       <% items.forEach(item => { %>
-                          <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
+                        <% if(vehicle.licensePlate.includes('1147') || vehicle.licensePlate.includes('1148')) { %>
+                          <span style="color: #811331 !important;">
+                            <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
+                          </span>
+                        <% } else { %>
+                          <span>
+                            <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
+                          </span>
+                        <% } %>
                       <% }); %>
-                      
-                      <% if(!vehicle.licensePlate.includes('-')) { %>
-                          || 3-as kocsi
+
+                      <%# 3-as kocsi %>
+                      <% if (items.length > 0 && vehicle.licensePlate.includes('-')) { %>
+                        <p type="button"><%= vehicle.label %></p>
                       <% } %>
-                  </div>
-                </h5>
+                      <% if (!vehicle.licensePlate.includes('-')) { %>
+                        <p type="button"><%= vehicle.label %>, 3-as kocsi</p> 
+                      <% } %>
+                    </div>
+                  </h5>
               </div>
               <div class="card-body">
                   <p class="card-text">
@@ -129,7 +140,7 @@
                                                           <% if (vehicle.stopSequence > stop.stopSequence && vehicle.status === 'IN_TRANSIT_TO') { %>
                                                               <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
                                                                   <span class="leftstopsH5"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH5"><%= stop.predictedArrivalTime %></span></td>
+                                                                  <td><span class="leftstopsH5"><%=  stop.predictedArrivalTime %></span></td>
                                                               <% } else { %>
                                                                   <span class="leftstopsH5"><%= stop.stopId %></span>
                                                                   <td><span class="leftstopsH5"><%= stop.predictedDepartureTime %></span></td>
@@ -222,9 +233,6 @@
         extraInfo.style.display = extraInfo.style.display === 'none' ? 'block' : 'none';
     }
   </script>
-
-
-  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

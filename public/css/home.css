@@ -137,7 +137,7 @@ hr{
     background-color: gray;
 }
 
-.dropdown-hev5, .dropdown-hev6, .dropdown-hev7, .dropdown-hev8{
+.dropdown-hev5, .dropdown-hev6, .dropdown-hev7, .dropdown-hev8, .dropdown-hev9{
     background-color: transparent;
     color: white;
     border-radius: 5px;
@@ -164,7 +164,7 @@ hr{
     color: rgb(238, 113, 1);
     border: rgb(238, 113, 1) 1px solid;
 }
-.dropdown-hev8:hover{
+.dropdown-hev8:hover, .dropdown-hev9:hover{
     background-color: transparent;
     color: rgb(237, 110, 134);
     border: rgb(237, 110, 134) 1px solid;

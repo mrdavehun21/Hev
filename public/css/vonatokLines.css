@@ -15,7 +15,7 @@ header {
 }
 @media (max-width: 430px) {
     .offcanvas{
-        padding-top: 22%;
+        padding-top: 28%;
     }
 }
 
@@ -34,6 +34,9 @@ svg:hover {
     }
     svg {
         display: none;
+    }
+    main{
+        padding-bottom: 0px;
     }
 }
 /*FOOTER END*/
@@ -76,7 +79,7 @@ button,
     color: #ee7101 !important;
 }
 
-.Hev8{
+.Hev8, .Hev9{
     font-family: 'Racing Sans One';
     color: #ed6e86 !important;
 }
@@ -194,38 +197,24 @@ td, th {
 /* Stops Styling */
 .leftstopsH5 {
     color: #8A236C;
+    justify-content: center;
 }
 @media(max-width: 430px){
-    #vehicles-containerH5, .card-body{
-        padding: 1% !important;
+    #vehicles-container, .accordion-body, .card-body{
+        padding: 0.5px !important;
     }
 }
 
 .leftstopsH6 {
     color: #7b4400;
 }
-@media(max-width: 430px){
-    #vehicles-containerH6, .card-body{
-        padding: 1% !important;
-    }
-}
 
 .leftstopsH7 {
     color: #ee7101;
 }
-@media(max-width: 430px){
-    #vehicles-containerH7, .card-body{
-        padding: 1% !important;
-    }
-}
 
-.leftstopsH8 {
+.leftstopsH8, .leftstopsH9 {
     color: #ed6e86;
-}
-@media(max-width: 430px){
-    #vehicles-containerH8, .card-body{
-        padding: 1% !important;
-    }
 }
 
 /*-------H5-------*/
@@ -316,7 +305,7 @@ td, th {
 }
 
 /*-------H8-------*/
-.circle-iconH8 {
+.circle-iconH8, .circle-iconH9 {
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -328,12 +317,12 @@ td, th {
     z-index: 2;
 }
 
-.stops-lineH8 {
+.stops-lineH8, .stops-lineH9 {
     position: relative;
     height: 15px;
 }
 
-.stops-lineH8::before {
+.stops-lineH8::before, .stops-lineH9::before {
     content: '';
     position: absolute;
     top: 0;

@@ -10,13 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
     <title>Vonatok / H7</title>
     <link rel="icon" type="image/png" href="../icons/favicon.png">
-    <meta name="description" content="MXA és MX-motorkocsik pályaszáma a H7-es HÉV vonalán">
+    <meta name="description" content="Motorkocsik pályaszáma a H7-es HÉV vonalán">
 </head>
 <body>
   <header>
     <nav class="navbar bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
       <div class="container-sm">
-        <h1 class="navbar-brand Hev7">MXA és MX Motorkocsik-H7</h1>
+        <h1 class="navbar-brand Hev7">MXA Motorkocsik-H7</h1>
         <h3 class="navbar-brand Hev7">Összesen: <%= vehiclesH6.length %> szerelvény</h3>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -50,14 +50,23 @@
     </nav>
   </header>
   <main>
-    <div id="vehicles-containerH7" class="container-lg">
+    <div id="vehicles-container" class="container-lg">
       <% const filteredVehicles = selectedDirectionH7 ? vehiclesH7.filter(vehicle => vehicle.tripHeadsign === selectedDirectionH7) : vehiclesH7; %>
 
       <% filteredVehicles.forEach(vehicle => { %>
           <div class="card mb-3">
               <div class="card-header">
                 <h5 class="card-title font">
-                  <button type="button"><%= vehicle.licensePlate %></button>
+                    <button type="button" onclick="toggleInfo('<%= vehicle.licensePlate %>')"><%= vehicle.licensePlate %></button>
+
+                    <%# ExtraInfo section to be toggled %>
+                    <div id="extraInfo<%= vehicle.licensePlate %>" style="display: none;">
+                        <% if (!vehicle.licensePlate.includes('-')) { %>
+                            3-as szerelvény, <span type="button"><%= vehicle.label %></span>
+                        <% } else { %>
+                        <p type="button"><%= vehicle.label %></p>
+                        <% } %> 
+                    </div>
                 </h5>
               </div>
               <div class="card-body">
@@ -177,7 +186,7 @@
                 });
 
                 // Update the vehicles container with the received HTML data
-                document.getElementById('vehicles-containerH7').innerHTML = data;
+                document.getElementById('vehicles-container').innerHTML = data;
 
                 // Restore the state of expanded accordion items
                 expandedItems.forEach(itemId => {
@@ -197,7 +206,13 @@
 
         // Set up a timer to fetch data every 30 seconds
         setInterval(fetchData, 30000); // 30 seconds = 30000 milliseconds
-    };
+    }
+
+    // Function to toggle extra info
+    function toggleInfo(licensePlate) {
+        const extraInfo = document.getElementById('extraInfo' + licensePlate);
+        extraInfo.style.display = extraInfo.style.display === 'none' ? 'block' : 'none';
+    }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
