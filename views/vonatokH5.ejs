@@ -53,6 +53,16 @@
   <main>
     <div id="vehicles-container" class="container-lg">
       <% const filteredVehicles = selectedDirectionH5 ? vehiclesH5.filter(vehicle => vehicle.tripHeadsign === selectedDirectionH5) : vehiclesH5; %>
+      
+      <%# DelayTime %>
+      <% 
+        function calculateDelay(predictedArrivalTime, arrivalTime) {
+          const predictedTime = new Date(`1970-01-01T${predictedArrivalTime}:00`).getTime();
+          const scheduledTime = new Date(`1970-01-01T${arrivalTime}:00`).getTime();
+          const delayInMinutes = (predictedTime - scheduledTime) / (1000 * 60); // convert milliseconds to minutes
+          return delayInMinutes > 0 ? `${delayInMinutes} perc` : ''; // Return delay in minutes or display nothing
+        }
+      %>
 
       <% filteredVehicles.forEach(vehicle => { %>
           <div class="card mb-3">
@@ -78,12 +88,12 @@
                         <% } %>
                       <% }); %>
 
-                      <%# 3-as kocsi %>
+                      <%# 3 szerelvényes %>
                       <% if (items.length > 0 && vehicle.licensePlate.includes('-')) { %>
                         <p type="button"><%= vehicle.label %></p>
                       <% } %>
                       <% if (!vehicle.licensePlate.includes('-')) { %>
-                        <p type="button"><%= vehicle.label %>, 3-as kocsi</p> 
+                        <p type="button"><%= vehicle.label %>, 3 szerelvényes</p> 
                       <% } %>
                     </div>
                   </h5>
@@ -111,63 +121,83 @@
                   
                   <!-- Collapsible section for Stops -->
                   <% const vehicleStops = stopsByVehicleH5[vehicle.vehicleId] || []; %>
-                  <% let validPredictedArrivalTimeExists = vehicleStops.some(stop => stop.predictedArrivalTime !== "Invalid Date"); %>
 
-                  <% if (validPredictedArrivalTimeExists) { %>
-                      <div class="accordion" id="accordionStops<%= vehicle.index %>">
-                          <div class="accordion-item">
-                              <h2 class="accordion-header" id="headingStops<%= vehicle.index %>">
-                                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%= vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%= vehicle.index %>">
-                                      Menetrend
-                                  </button>
-                              </h2>
-                              <div id="collapseStops<%= vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%= vehicle.index %>" data-bs-parent="#accordionStops<%= vehicle.index %>">
-                                  <div class="accordion-body">
-                                      <table class="table stop-table pt-5">
-                                          <thead>
-                                              <tr>
-                                                  <th scope="col">Megálló</th>
-                                                  <th scope="col">Érkezési idő</th>
-                                              </tr>
-                                          </thead>
-                                          <tbody>
-                                              <% vehicleStops.forEach(stop => { %>
-                                                  <tr>
-                                                      <td class="stops-lineH5">
-                                                          <%# colored circle %>
-                                                          <span class="circle-iconH5"></span>
-                                                          <%# StopName colored when arriving to stop%>
-                                                          <% if (vehicle.stopSequence > stop.stopSequence && vehicle.status === 'IN_TRANSIT_TO') { %>
-                                                              <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                  <span class="leftstopsH5"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH5"><%=  stop.predictedArrivalTime %></span></td>
-                                                              <% } else { %>
-                                                                  <span class="leftstopsH5"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH5"><%= stop.predictedDepartureTime %></span></td>
-                                                              <% } %>
-                                                          <%# StopName colored when arrived to stop %>
-                                                          <% } else if (vehicle.stopSequence >= stop.stopSequence && vehicle.status !== 'IN_TRANSIT_TO') { %>
-                                                              <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
-                                                                  <span class="leftstopsH5"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH5"><%= stop.predictedArrivalTime %></span></td>
-                                                              <% } else { %>
-                                                                  <span class="leftstopsH5"><%= stop.stopId %></span>
-                                                                  <td><span class="leftstopsH5"><%= stop.predictedDepartureTime %></span></td>
-                                                              <% } %>
-                                                          <%# StopName not colored %>
-                                                          <% } else { %>
-                                                            <span class="notleftstops"><%= stop.stopId %></span>
-                                                            <td><%= stop.predictedArrivalTime %></td>
-                                                          <% } %>
-                                                      </td>
-                                                  </tr>
-                                              <% }); %>
-                                          </tbody>
-                                      </table>
-                                  </div>
-                              </div>
+                  <% if (vehicleStops.length > 0) { %>
+                    <div class="accordion" id="accordionStops<%= vehicle.index %>">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingStops<%= vehicle.index %>">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStops<%= vehicle.index %>" aria-expanded="true" aria-controls="collapseStops<%= vehicle.index %>">
+                                Menetrend
+                            </button>
+                        </h2>
+                        <div id="collapseStops<%= vehicle.index %>" class="accordion-collapse collapse" aria-labelledby="headingStops<%= vehicle.index %>" data-bs-parent="#accordionStops<%= vehicle.index %>">
+                          <div class="accordion-body">
+                            <table class="table stop-table pt-5">
+                              <thead>
+                                <tr>
+                                    <th scope="col">Megálló</th>
+                                    <th scope="col">Érkezési idő / Késés</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% vehicleStops.forEach(stop => { %>
+                                  <tr>
+                                    <td class="stops-lineH5">
+                                      <span class="circle-iconH5"></span>
+                                      <% if (vehicle.stopSequence > stop.stopSequence && vehicle.status === 'IN_TRANSIT_TO') { %>
+                                        <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                          <span class="leftstopsH5"><%= stop.stopId %></span>
+                                          <td>
+                                            <span class="leftstopsH5"><%= stop.predictedArrivalTime %></span>
+                                            <span class="delayed"><%= calculateDelay(stop.predictedArrivalTime, stop.arrivalTime) %></span>
+                                          </td>
+                                        <% } else { %>
+                                          <span class="leftstopsH5"><%= stop.stopId %></span>
+                                          <td>
+                                            <span class="leftstopsH5"><%= stop.predictedDepartureTime %></span>
+                                            <span class="delayed"><%= calculateDelay(stop.predictedDepartureTime, stop.arrivalTime) %></span>
+                                          </td>
+                                        <% } %>
+                                      <% } else if (vehicle.stopSequence >= stop.stopSequence && vehicle.status !== 'IN_TRANSIT_TO') { %>
+                                        <% if (stop.predictedArrivalTime !== "Invalid Date") { %>
+                                          <span class="leftstopsH5"><%= stop.stopId %></span>
+                                          <td>
+                                            <span class="leftstopsH5"><%= stop.predictedArrivalTime %></span>
+                                            <span class="delayed"><%= calculateDelay(stop.predictedArrivalTime, stop.arrivalTime) %></span>
+                                          </td>
+                                        <% } else { %>
+                                          <span class="leftstopsH5"><%= stop.stopId %></span>
+                                          <td>
+                                            <span class="leftstopsH5">
+                                            <% if (stop.predictedDepartureTime == "Invalid Date") { %>
+                                              <%= stop.departureTime %>
+                                            <% } else { %>
+                                              <%= stop.predictedDepartureTime %>
+                                            <% } %>
+                                            </span>
+                                            <span class="delayed"><%= calculateDelay(stop.predictedDepartureTime, stop.arrivalTime) %></span>
+                                          </td>
+                                        <% } %>
+                                      <% } else { %>
+                                        <span class="notleftstops"><%= stop.stopId %></span>
+                                        <td>
+                                          <% if (stop.predictedArrivalTime == "Invalid Date") { %>
+                                            <%= stop.arrivalTime %>
+                                          <% } else { %>
+                                          <%= stop.predictedArrivalTime %>
+                                          <% } %>
+                                          <span class="delayed"><%= calculateDelay(stop.predictedArrivalTime, stop.arrivalTime) %></span>
+                                        </td>
+                                      <% } %>
+                                    </td>
+                                  </tr>
+                                <% }); %>
+                              </tbody>
+                            </table>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   <% } %>
               </div>
           </div>
@@ -232,6 +262,7 @@
         const extraInfo = document.getElementById('extraInfo' + licensePlate);
         extraInfo.style.display = extraInfo.style.display === 'none' ? 'block' : 'none';
     }
+    
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

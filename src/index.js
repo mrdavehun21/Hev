@@ -5,6 +5,7 @@ const app = express();
 const axios = require('axios');
 const fs = require('fs');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 app.use(express.json());
 app.use(session({
@@ -14,8 +15,6 @@ app.use(session({
 }));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static('public'));
-
 
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
@@ -30,12 +29,15 @@ app.get("/home", (req, res) => {
 // Apply rate limiting middleware for all routes
 const limiter = rateLimit({
     windowMs: 30 * 1000, // 30 seconds
-    max: 20, // limit each IP to 10 requests per 30 seconds
-    message: 'Too many requests from this IP, please try again 30 seconds later'
+    max: 30, // limit each IP to 30 requests per 30 seconds
+    handler: (req, res) => {
+        res.status(429).sendFile(path.join(__dirname, '../public', '429.html'));
+    }
 });
 
 app.use(limiter);
 
+app.use(express.static(path.join(__dirname, '../public')));
 //----------------------Vonatok-------------------------------------------//
 
 // Function to match stopId to name
@@ -50,6 +52,24 @@ function matchTripIdToTripHeadsign(tripId, trips) {
     return trip ? trip.tripHeadsign : null;
 }
 
+// Helper functions
+function getCurrentDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Adding 1 to month as it is 0-indexed
+    const day = now.getDate().toString().padStart(2, '0');
+    return `${day}-${month}-${year}`;
+}
+
+function formatTime(timestamp) {
+    return new Date(timestamp * 1000).toLocaleTimeString('hu-HU', {
+        timeZone: 'Europe/Budapest',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+}
+
 //--------------H5------------------//
 // Function to fetch data from API
 async function fetchDataFromAPIH5() {
@@ -59,16 +79,14 @@ async function fetchDataFromAPIH5() {
             params: {
                 routeId: 'BKK_H5',
                 related: false,
-                appVersion: '1.1.abc',
                 version: 2,
                 includeReferences: true,
                 key: apiKey
             }
         });
-        const vehiclesData = vehiclesResponse.data;
 
-        // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
+        const vehiclesData = vehiclesResponse.data.data;
+        const vehicles = vehiclesData.list.map((vehicle, index) => ({
             index: index + 1,
             vehicleId: vehicle.vehicleId,
             tripId: vehicle.tripId,
@@ -77,657 +95,73 @@ async function fetchDataFromAPIH5() {
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
             label: vehicle.label,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
+            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.references.trips),
+            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.references.stops)
         }));
 
-        // Create stopsByVehicle object to store stops data indexed by vehicleId
         const stopsByVehicle = {};
-
-        // Array to store promises for each vehicle's stop data
-        const stopPromises = [];
-
-        // Iterate over each vehicleId and make a request
-        for (const vehicle of vehicles) {
-            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
+        const stopPromises = vehicles.map(vehicle =>
+            axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
                 params: {
                     vehicleId: vehicle.vehicleId,
-                    date: getCurrentDate(), // Fetching current date
-                    appVersion: '1.1.abc',
+                    date: getCurrentDate(),
                     version: 4,
                     includeReferences: true,
                     key: apiKey
                 }
-            });
+            })
+        );
 
-            stopPromises.push(stopPromise);
-        }
-
-        // Wait for all requests to complete
         const stopResponses = await Promise.all(stopPromises);
 
-        // Process each stop response
-        for (let i = 0; i < stopResponses.length; i++) {
-            const stopResponse = stopResponses[i];
-            const vehicleId = vehicles[i].vehicleId;
-            const stopTimesData = stopResponse.data;
-
-            // Extract stops data for this vehicleId
-            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
+        stopResponses.forEach((stopResponse, i) => {
+            stopsByVehicle[vehicles[i].vehicleId] = stopResponse.data.data.entry.stopTimes.map(stop => ({
+                stopId: matchStopIdToName(stop.stopId, stopResponse.data.data.references.stops),
                 stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                arrivalTime: new Date(stop.arrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
+                predictedArrivalTime: formatTime(stop.predictedArrivalTime),
+                predictedDepartureTime: formatTime(stop.predictedDepartureTime),
+                arrivalTime: formatTime(stop.arrivalTime),
+                departureTime: formatTime(stop.departureTime)
             }));
+        });
 
-            // Store stops data indexed by vehicleId
-            stopsByVehicle[vehicleId] = stopsData;
-        }
-
-        const currentDate = getCurrentDate();
-
-        // Store the data in session
         app.locals.vehiclesH5 = vehicles;
         app.locals.stopsByVehicleH5 = stopsByVehicle;
-        app.locals.currentDateH5 = currentDate;
-
-        // // Log details of the first vehicle
-        // if (vehicles.length > 0) {
-        //     const firstVehicle = vehicles[1];
-        //     console.log('Details of the first vehicle:', firstVehicle);
-        // }
-        // Date functions
-        function getCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
-                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-            const month = monthNames[now.getMonth()];
-            const day = now.getDate().toString().padStart(2, '0');
-            return `${day} ${month} ${year}`;
-        }
-
+        app.locals.currentDateH5 = getCurrentDate();
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 
-// Function to fetch data from API and start interval
 async function startFetchingDataH5() {
-    // Fetch data immediately
     await fetchDataFromAPIH5();
-
-    // Set interval to fetch data every 30 seconds
-    setInterval(async () => {
-        await fetchDataFromAPIH5();
-    }, 30000); // 30 seconds in milliseconds
+    setInterval(fetchDataFromAPIH5, 30000);
 }
 
 // Start fetching data
 startFetchingDataH5();
 
 // Routes
-app.get('/home/vonatokH5', async (req, res) => {
+app.get('/home/vonatokH5', (req, res) => {
     try {
         const vehiclesH5 = app.locals.vehiclesH5 || [];
         const stopsByVehicleH5 = app.locals.stopsByVehicleH5 || {};
         const selectedDirectionH5 = req.session.selectedDirectionH5 || '';
         const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
-
-        // Render the EJS file with the data
         res.render('vonatokH5', { vehiclesH5, stopsByVehicleH5, selectedDirectionH5, licensePlates: licensePlatesData });
     } catch (error) {
         console.error('Error rendering page:', error);
-        res.status(500).send('Error rendering page');
+        res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
     }
 });
 
-app.post('/home/vonatokH5', async (req, res) => {
+app.post('/home/vonatokH5', (req, res) => {
     try {
-        // Store the selected tripheadsign in the session
         req.session.selectedDirectionH5 = req.body.selectedDirectionH5;
-        // Redirect back to the vonatok page
         res.redirect('/home/vonatokH5');
     } catch (error) {
         console.error('Error processing filter:', error);
-        res.status(500).send('Error processing filter');
-    }
-});
-
-//--------------H6------------------//
-// Function to fetch data from API
-async function fetchDataFromAPIH6() {
-    try {
-        const apiKey = process.env.API_KEY;
-        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
-            params: {
-                routeId: 'BKK_H6',
-                related: false,
-                appVersion: '1.1.abc',
-                version: 2,
-                includeReferences: true,
-                key: apiKey
-            }
-        });
-        const vehiclesData = vehiclesResponse.data;
-
-        // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
-            index: index + 1,
-            vehicleId: vehicle.vehicleId,
-            tripId: vehicle.tripId,
-            stopId: vehicle.stopId,
-            licensePlate: vehicle.licensePlate,
-            stopSequence: vehicle.stopSequence,
-            status: vehicle.status,
-            label: vehicle.label,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
-        }));
-
-        // Create stopsByVehicle object to store stops data indexed by vehicleId
-        const stopsByVehicle = {};
-
-        // Array to store promises for each vehicle's stop data
-        const stopPromises = [];
-
-        // Iterate over each vehicleId and make a request
-        for (const vehicle of vehicles) {
-            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
-                params: {
-                    vehicleId: vehicle.vehicleId,
-                    date: getCurrentDate(), // Fetching current date
-                    appVersion: '1.1.abc',
-                    version: 4,
-                    includeReferences: true,
-                    key: apiKey
-                }
-            });
-
-            stopPromises.push(stopPromise);
-        }
-
-        // Wait for all requests to complete
-        const stopResponses = await Promise.all(stopPromises);
-
-        // Process each stop response
-        for (let i = 0; i < stopResponses.length; i++) {
-            const stopResponse = stopResponses[i];
-            const vehicleId = vehicles[i].vehicleId;
-            const stopTimesData = stopResponse.data;
-
-            // Extract stops data for this vehicleId
-            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
-                stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
-            }));
-
-            // Store stops data indexed by vehicleId
-            stopsByVehicle[vehicleId] = stopsData;
-        }
-
-        const currentDate = getCurrentDate();
-
-        // Store the data in session
-        app.locals.vehiclesH6 = vehicles;
-        app.locals.stopsByVehicleH6 = stopsByVehicle;
-        app.locals.currentDateH6 = currentDate;
-
-        // Date functions
-        function getCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
-                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-            const month = monthNames[now.getMonth()];
-            const day = now.getDate().toString().padStart(2, '0');
-            return `${day} ${month} ${year}`;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-// Function to fetch data from API and start interval
-async function startFetchingDataH6() {
-    // Fetch data immediately
-    await fetchDataFromAPIH6();
-
-    // Set interval to fetch data every 30 seconds
-    setInterval(async () => {
-        await fetchDataFromAPIH6();
-    }, 30000); // 30 seconds in milliseconds
-}
-
-// Start fetching data
-startFetchingDataH6();
-
-// Routes
-app.get('/home/vonatokH6', async (req, res) => {
-    try {
-        const vehiclesH6 = app.locals.vehiclesH6 || [];
-        const stopsByVehicleH6 = app.locals.stopsByVehicleH6 || {};
-        const selectedDirectionH6 = req.session.selectedDirectionH6 || '';
-
-        res.render('vonatokH6', { vehiclesH6, stopsByVehicleH6, selectedDirectionH6 });
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        res.status(500).send('Error rendering page');
-    }
-});
-app.post('/home/vonatokH6', async (req, res) => {
-    try {
-        req.session.selectedDirectionH6 = req.body.selectedDirectionH6;
-
-        res.redirect('/home/vonatokH6');
-    } catch (error) {
-        console.error('Error processing filter:', error);
-        res.status(500).send('Error processing filter');
-    }
-});
-
-//--------------H7------------------//
-// Function to fetch data from API
-async function fetchDataFromAPIH7() {
-    try {
-        const apiKey = process.env.API_KEY;
-        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
-            params: {
-                routeId: 'BKK_H7',
-                related: false,
-                appVersion: '1.1.abc',
-                version: 2,
-                includeReferences: true,
-                key: apiKey
-            }
-        });
-        const vehiclesData = vehiclesResponse.data;
-
-        // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
-            index: index + 1,
-            vehicleId: vehicle.vehicleId,
-            tripId: vehicle.tripId,
-            stopId: vehicle.stopId,
-            licensePlate: vehicle.licensePlate,
-            stopSequence: vehicle.stopSequence,
-            status: vehicle.status,
-            label: vehicle.label,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
-        }));
-
-        // Create stopsByVehicle object to store stops data indexed by vehicleId
-        const stopsByVehicle = {};
-
-        // Array to store promises for each vehicle's stop data
-        const stopPromises = [];
-
-        // Iterate over each vehicleId and make a request
-        for (const vehicle of vehicles) {
-            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
-                params: {
-                    vehicleId: vehicle.vehicleId,
-                    date: getCurrentDate(), // Fetching current date
-                    appVersion: '1.1.abc',
-                    version: 4,
-                    includeReferences: true,
-                    key: apiKey
-                }
-            });
-
-            stopPromises.push(stopPromise);
-        }
-
-        // Wait for all requests to complete
-        const stopResponses = await Promise.all(stopPromises);
-
-        // Process each stop response
-        for (let i = 0; i < stopResponses.length; i++) {
-            const stopResponse = stopResponses[i];
-            const vehicleId = vehicles[i].vehicleId;
-            const stopTimesData = stopResponse.data;
-
-            // Extract stops data for this vehicleId
-            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
-                stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
-            }));
-
-            // Store stops data indexed by vehicleId
-            stopsByVehicle[vehicleId] = stopsData;
-        }
-
-        const currentDate = getCurrentDate();
-
-        // Store the data in session
-        app.locals.vehiclesH7 = vehicles;
-        app.locals.stopsByVehicleH7 = stopsByVehicle;
-        app.locals.currentDateH7 = currentDate;
-
-        // Date functions
-        function getCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
-                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-            const month = monthNames[now.getMonth()];
-            const day = now.getDate().toString().padStart(2, '0');
-            return `${day} ${month} ${year}`;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-// Function to fetch data from API and start interval
-async function startFetchingDataH7() {
-    // Fetch data immediately
-    await fetchDataFromAPIH7();
-
-    // Set interval to fetch data every 30 seconds
-    setInterval(async () => {
-        await fetchDataFromAPIH7();
-    }, 30000); // 30 seconds in milliseconds
-}
-
-// Start fetching data
-startFetchingDataH7();
-
-// Routes
-app.get('/home/vonatokH7', async (req, res) => {
-    try {
-        const vehiclesH7 = app.locals.vehiclesH7 || [];
-        const stopsByVehicleH7 = app.locals.stopsByVehicleH7 || {};
-        const selectedDirectionH7 = req.session.selectedDirectionH7 || '';
-
-        res.render('vonatokH7', { vehiclesH7, stopsByVehicleH7, selectedDirectionH7 });
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        res.status(500).send('Error rendering page');
-    }
-});
-app.post('/home/vonatokH7', async (req, res) => {
-    try {
-        req.session.selectedDirectionH7 = req.body.selectedDirectionH7;
-
-        res.redirect('/home/vonatokH7');
-    } catch (error) {
-        console.error('Error processing filter:', error);
-        res.status(500).send('Error processing filter');
-    }
-});
-
-//--------------H8------------------//
-// Function to fetch data from API
-async function fetchDataFromAPIH8() {
-    try {
-        const apiKey = process.env.API_KEY;
-        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
-            params: {
-                routeId: 'BKK_H8',
-                related: false,
-                appVersion: '1.1.abc',
-                version: 2,
-                includeReferences: true,
-                key: apiKey
-            }
-        });
-        const vehiclesData = vehiclesResponse.data;
-
-        // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
-            index: index + 1,
-            vehicleId: vehicle.vehicleId,
-            tripId: vehicle.tripId,
-            stopId: vehicle.stopId,
-            licensePlate: vehicle.licensePlate,
-            stopSequence: vehicle.stopSequence,
-            status: vehicle.status,
-            label: vehicle.label,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
-        }));
-
-        // Create stopsByVehicle object to store stops data indexed by vehicleId
-        const stopsByVehicle = {};
-
-        // Array to store promises for each vehicle's stop data
-        const stopPromises = [];
-
-        // Iterate over each vehicleId and make a request
-        for (const vehicle of vehicles) {
-            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
-                params: {
-                    vehicleId: vehicle.vehicleId,
-                    date: getCurrentDate(), // Fetching current date
-                    appVersion: '1.1.abc',
-                    version: 4,
-                    includeReferences: true,
-                    key: apiKey
-                }
-            });
-
-            stopPromises.push(stopPromise);
-        }
-
-        // Wait for all requests to complete
-        const stopResponses = await Promise.all(stopPromises);
-
-        // Process each stop response
-        for (let i = 0; i < stopResponses.length; i++) {
-            const stopResponse = stopResponses[i];
-            const vehicleId = vehicles[i].vehicleId;
-            const stopTimesData = stopResponse.data;
-
-            // Extract stops data for this vehicleId
-            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
-                stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
-            }));
-
-            // Store stops data indexed by vehicleId
-            stopsByVehicle[vehicleId] = stopsData;
-        }
-
-        const currentDate = getCurrentDate();
-
-        // Store the data in session
-        app.locals.vehiclesH8 = vehicles;
-        app.locals.stopsByVehicleH8 = stopsByVehicle;
-        app.locals.currentDateH8 = currentDate;
-
-        // Date functions
-        function getCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
-                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-            const month = monthNames[now.getMonth()];
-            const day = now.getDate().toString().padStart(2, '0');
-            return `${day} ${month} ${year}`;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-// Function to fetch data from API and start interval
-async function startFetchingDataH8() {
-    // Fetch data immediately
-    await fetchDataFromAPIH8();
-
-    // Set interval to fetch data every 30 seconds
-    setInterval(async () => {
-        await fetchDataFromAPIH8();
-    }, 30000); // 30 seconds in milliseconds
-}
-
-// Start fetching data
-startFetchingDataH8();
-
-// Routes
-app.get('/home/vonatokH8', async (req, res) => {
-    try {
-        const vehiclesH8 = app.locals.vehiclesH8 || [];
-        const stopsByVehicleH8 = app.locals.stopsByVehicleH8 || {};
-        const selectedDirectionH8 = req.session.selectedDirectionH8 || '';
-
-        res.render('vonatokH8', { vehiclesH8, stopsByVehicleH8, selectedDirectionH8 });
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        res.status(500).send('Error rendering page');
-    }
-});
-app.post('/home/vonatokH8', async (req, res) => {
-    try {
-        req.session.selectedDirectionH8 = req.body.selectedDirectionH8;
-
-        res.redirect('/home/vonatokH8');
-    } catch (error) {
-        console.error('Error processing filter:', error);
-        res.status(500).send('Error processing filter');
-    }
-});
-
-//--------------H9------------------//
-// Function to fetch data from API
-async function fetchDataFromAPIH9() {
-    try {
-        const apiKey = process.env.API_KEY;
-        const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
-            params: {
-                routeId: 'BKK_H9',
-                related: false,
-                appVersion: '1.1.abc',
-                version: 2,
-                includeReferences: true,
-                key: apiKey
-            }
-        });
-        const vehiclesData = vehiclesResponse.data;
-
-        // Extracting license plate section and matching tripId to tripHeadsign
-        const vehicles = vehiclesData.data.list.map((vehicle, index) => ({
-            index: index + 1,
-            vehicleId: vehicle.vehicleId,
-            tripId: vehicle.tripId,
-            stopId: vehicle.stopId,
-            licensePlate: vehicle.licensePlate,
-            stopSequence: vehicle.stopSequence,
-            status: vehicle.status,
-            label: vehicle.label,
-            tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.data.references.trips),
-            stopName: matchStopIdToName(vehicle.stopId, vehiclesData.data.references.stops)
-        }));
-
-        // Create stopsByVehicle object to store stops data indexed by vehicleId
-        const stopsByVehicle = {};
-
-        // Array to store promises for each vehicle's stop data
-        const stopPromises = [];
-
-        // Iterate over each vehicleId and make a request
-        for (const vehicle of vehicles) {
-            const stopPromise = axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
-                params: {
-                    vehicleId: vehicle.vehicleId,
-                    date: getCurrentDate(), // Fetching current date
-                    appVersion: '1.1.abc',
-                    version: 4,
-                    includeReferences: true,
-                    key: apiKey
-                }
-            });
-
-            stopPromises.push(stopPromise);
-        }
-
-        // Wait for all requests to complete
-        const stopResponses = await Promise.all(stopPromises);
-
-        // Process each stop response
-        for (let i = 0; i < stopResponses.length; i++) {
-            const stopResponse = stopResponses[i];
-            const vehicleId = vehicles[i].vehicleId;
-            const stopTimesData = stopResponse.data;
-
-            // Extract stops data for this vehicleId
-            const stopsData = stopTimesData.data.entry.stopTimes.map(stop => ({
-                stopId: matchStopIdToName(stop.stopId, stopTimesData.data.references.stops),
-                stopSequence: stop.stopSequence,
-                predictedArrivalTime: new Date(stop.predictedArrivalTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false }),
-                predictedDepartureTime: new Date(stop.predictedDepartureTime * 1000).toLocaleTimeString('hu-HU', {timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hour12: false })
-            }));
-
-            // Store stops data indexed by vehicleId
-            stopsByVehicle[vehicleId] = stopsData;
-        }
-
-        const currentDate = getCurrentDate();
-
-        // Store the data in session
-        app.locals.vehiclesH9 = vehicles;
-        app.locals.stopsByVehicleH9 = stopsByVehicle;
-        app.locals.currentDateH9 = currentDate;
-
-        // Date functions
-        function getCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const monthNames = ["Január", "Február", "Március", "Április", "Május", "Június",
-                "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-            const month = monthNames[now.getMonth()];
-            const day = now.getDate().toString().padStart(2, '0');
-            return `${day} ${month} ${year}`;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-// Function to fetch data from API and start interval
-async function startFetchingDataH9() {
-    // Fetch data immediately
-    await fetchDataFromAPIH9();
-
-    // Set interval to fetch data every 30 seconds
-    setInterval(async () => {
-        await fetchDataFromAPIH9();
-    }, 30000); // 30 seconds in milliseconds
-}
-
-// Start fetching data
-startFetchingDataH9();
-
-// Routes
-app.get('/home/vonatokH9', async (req, res) => {
-    try {
-        const vehiclesH9 = app.locals.vehiclesH9 || [];
-        const stopsByVehicleH9 = app.locals.stopsByVehicleH9 || {};
-        const selectedDirectionH9 = req.session.selectedDirectionH9 || '';
-
-        res.render('vonatokH9', { vehiclesH9, stopsByVehicleH9, selectedDirectionH9 });
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        res.status(500).send('Error rendering page');
-    }
-});
-app.post('/home/vonatokH9', async (req, res) => {
-    try {
-        req.session.selectedDirectionH9 = req.body.selectedDirectionH9;
-
-        res.redirect('/home/vonatokH9');
-    } catch (error) {
-        console.error('Error processing filter:', error);
-        res.status(500).send('Error processing filter');
+        res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
     }
 });
 
@@ -813,6 +247,17 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.render("signup");
+});
+
+// Custom error handling middleware for catching other errors
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).sendFile(path.join(__dirname, '../public', '500.html'));
+});
+
+// 404 handler (should be placed after all other routes)
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '../public', '404.html'));
 });
 
 const PORT = process.env.PORT || 3000; // Use environment port or default to 3000
