@@ -50,17 +50,19 @@ function matchStopIdToName(stopId, stops) {
 // Function to match tripId to tripHeadsign
 function matchTripIdToTripHeadsign(tripId, trips) {
     const trip = trips[tripId];
-    return trip ? trip.tripHeadsign : null;
+    return trip ? trip.tripHeadsign : tripId;
+    //it works yay
 }
 
-// Helper functions
+// Helper function to get the current date in YYYYMMDD format
 function getCurrentDate() {
     const now = new Date();
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Adding 1 to month as it is 0-indexed
     const day = now.getDate().toString().padStart(2, '0');
-    return `${day}-${month}-${year}`;
+    return `${year}${month}${day}`;
 }
+
 
 function formatTime(timestamp) {
     return new Date(timestamp * 1000).toLocaleTimeString('hu-HU', {
@@ -96,6 +98,7 @@ async function fetchDataFromAPIH5() {
             stopSequence: vehicle.stopSequence,
             status: vehicle.status,
             label: vehicle.label,
+            routeId: vehicle.routeId,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.references.stops),
             location: {
@@ -103,6 +106,8 @@ async function fetchDataFromAPIH5() {
                 lon: vehicle.location.lon
             }
         }));
+        // const trips = vehiclesData.references.trips;
+        // console.log('All trips:', trips);
 
         const stopsByVehicle = {};
         const stopPromises = vehicles.map(vehicle =>
@@ -212,6 +217,7 @@ async function fetchDataFromAPIVillamos(routeIds) {
                 stopSequence: vehicle.stopSequence,
                 status: vehicle.status,
                 label: vehicle.label,
+                routeId: vehicle.routeId,
                 tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.references.trips),
                 stopName: matchStopIdToName(vehicle.stopId, vehiclesData.references.stops),
                 location: {
@@ -257,7 +263,7 @@ async function fetchDataFromAPIVillamos(routeIds) {
 }
 
 async function startFetchingDataVillamos() {
-    const routeIds = ['BKK_3410', 'BKK_3190', 'BKK_3170'];
+    const routeIds = [ 'BKK_3190', 'BKK_3020', 'BKK_3171'];
     await fetchDataFromAPIVillamos(routeIds);
     setInterval(() => fetchDataFromAPIVillamos(routeIds), 30000);
 }
@@ -278,7 +284,7 @@ app.get('/home/villamos', (req, res) => {
         res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
     }
 });
-/*
+
 app.post('/home/villamos', (req, res) => {
     try {
         req.session.selectedDirectionVill = req.body.selectedDirectionVill;
@@ -288,7 +294,7 @@ app.post('/home/villamos', (req, res) => {
         res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
     }
 });
-*/
+
 //----------------------Villamosok_END-------------------------------------------//
 app.get("/home/map", (req, res) => {
     const vehiclesH5 = app.locals.vehiclesH5 || [];

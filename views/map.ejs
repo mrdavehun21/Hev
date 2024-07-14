@@ -27,12 +27,19 @@
             maxZoom: 19,
         }).addTo(map);
 
-        var customIcon = L.icon({
-            iconUrl: '../icons/picike 1.png',
-            iconSize: [41, 41], // size of the icon
-            iconAnchor: [21, 21], // point of the icon which will correspond to marker's location
-            popupAnchor: [1, -34] // point from which the popup should open relative to the iconAnchor
-        });
+        // var HevIcon = L.icon({
+        //     iconUrl: '../icons/Logo_suburban_railway.png',
+        //     iconSize: [41, 41], // size of the icon
+        //     iconAnchor: [21, 21], // point of the icon which will correspond to marker's location
+        //     popupAnchor: [1, -34] // point from which the popup should open relative to the iconAnchor
+        // });
+
+        // var VillamosIcon = L.icon({
+        //     iconUrl: '../icons/Logo_tramway.png',
+        //     iconSize: [41, 41], // size of the icon
+        //     iconAnchor: [21, 21], // point of the icon which will correspond to marker's location
+        //     popupAnchor: [1, -34] // point from which the popup should open relative to the iconAnchor
+        // });
 
         var markers = L.markerClusterGroup();
         map.addLayer(markers);
@@ -43,50 +50,49 @@
             .then(data => {
                 markers.clearLayers();
 
-                // Add markers for vehicles
+                // Add markers for hevs
                 data.H5.forEach(vehicle => {
                     const [part1, part2] = vehicle.licensePlate.split("-");
                     const items = data.licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2));
 
                     if (items.length > 0) {
                         const palyaszamFormatted = items.map(item => `${item.palyaszam[0]}-${item.palyaszam[1]}`).join(' ');
+                        let route = vehicle.routeId.replace(/^BKK_/, '');
                         const popupContent = `<div>
-                                                <strong>${palyaszamFormatted}</strong><br>
-                                                <span>${vehicle.tripHeadsign}</span>
+                                                <span>${route}</span> > <span>${vehicle.tripHeadsign}</span>
+                                                <hr>
+                                                <strong stlye="text-align: right;">${palyaszamFormatted}</strong>
                                             </div>`;
 
-                        var marker = L.marker([vehicle.location.lat, vehicle.location.lon], { icon: customIcon })
+                        var marker = L.marker([vehicle.location.lat, vehicle.location.lon])//, { icon: HevIcon }
                             .bindPopup(popupContent);
                         markers.addLayer(marker);
+
+
+                        var latlngs = data.latlngs.map(coord => L.latLng(coord[0], coord[1]));
+                        var polyline = L.polyline(latlngs, { color: '#8A236C' }).addTo(map);
+                        markers.addLayer(polyline);
                     }
                 });
 
-                // Add markers for vehicles
+                // Add markers for trams
                 data.tram.forEach(vehicle => {
-
+                    let route = vehicle.routeId.replace(/^BKK_3(0*)/, '').replace(/0$/, '');
                     const popupContentVill = `<div>
-                                                <strong>${vehicle.licensePlate}</strong><br>
-                                                <span>${vehicle.tripHeadsign}</span>
+                                                <span>${route}</span> > <span>${vehicle.tripHeadsign}</span>
+                                                <hr>
+                                                <strong>${vehicle.licensePlate}</strong>
                                             </div>`;
 
-                    var marker = L.marker([vehicle.location.lat, vehicle.location.lon])
+                    var marker = L.marker([vehicle.location.lat, vehicle.location.lon])//, { icon: VillamosIcon }
                         .bindPopup(popupContentVill);
                     markers.addLayer(marker);
-                });
 
-                // Add polyline H5
-                if (data.latlngs.length > 0) {
-                    var latlngs = data.latlngs.map(coord => L.latLng(coord[0], coord[1]));
-                    var polyline = L.polyline(latlngs, { color: '#8A236C' }).addTo(map);
-                    markers.addLayer(polyline);
-                }
 
-                // Add polyline 41
-                if (data.latlngs2.length > 0) {
                     var latlngs2 = data.latlngs2.map(coord => L.latLng(coord[0], coord[1]));
                     var polyline2 = L.polyline(latlngs2, { color: 'orange' }).addTo(map);
                     markers.addLayer(polyline2);
-                }
+                });
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
