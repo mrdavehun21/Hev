@@ -17,6 +17,16 @@ app.use(session({
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 
+// Apply rate limiting middleware for all routes
+const limiter = rateLimit({
+    windowMs: 30 * 1000, // 30 seconds
+    max: 60, // limit each IP to 30 requests per 30 seconds
+    handler: (req, res) => {
+        res.status(429).sendFile(path.join(__dirname, '../public', '429.html'));
+    }
+});
+app.use(limiter);
+
 app.get("", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render('home', { loggedIn });
@@ -26,17 +36,6 @@ app.get("/home", (req, res) => {
     const loggedIn = req.session ? req.session.loggedIn || false : false;
     res.render("home", { loggedIn });
 });
-
-// Apply rate limiting middleware for all routes
-const limiter = rateLimit({
-    windowMs: 30 * 1000, // 30 seconds
-    max: 30, // limit each IP to 30 requests per 30 seconds
-    handler: (req, res) => {
-        res.status(429).sendFile(path.join(__dirname, '../public', '429.html'));
-    }
-});
-
-app.use(limiter);
 
 app.use(express.static(path.join(__dirname, '../public')));
 //----------------------Vonatok-------------------------------------------//
@@ -101,6 +100,7 @@ async function fetchDataFromAPIH5() {
             routeId: vehicle.routeId,
             tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.references.trips),
             stopName: matchStopIdToName(vehicle.stopId, vehiclesData.references.stops),
+            bearing: vehicle.bearing,
             location: {
                 lat: vehicle.location.lat,
                 lon: vehicle.location.lon
@@ -185,130 +185,19 @@ app.post('/home/vonatokH5', (req, res) => {
 
 //----------------------Vonatok_END-------------------------------------------//
 
-//----------------------Villamosok-------------------------------------------//
-
-//--------------17,19,41------------------//
-//const routeIds = ['BKK_3410', 'BKK_3190', 'BKK_3170'];
-// Function to fetch data from API
-async function fetchDataFromAPIVillamos(routeIds) {
-    try {
-        const apiKey = process.env.API_KEY;
-        const allVehicles = [];
-        const allStopsByVehicle = {};
-
-        for (const routeId of routeIds) {
-            const vehiclesResponse = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/vehicles-for-route', {
-                params: {
-                    routeId: routeId,
-                    related: false,
-                    version: 2,
-                    includeReferences: true,
-                    key: apiKey
-                }
-            });
-
-            const vehiclesData = vehiclesResponse.data.data;
-            const vehicles = vehiclesData.list.map((vehicle, index) => ({
-                index: index + 1,
-                vehicleId: vehicle.vehicleId,
-                tripId: vehicle.tripId,
-                stopId: vehicle.stopId,
-                licensePlate: vehicle.licensePlate,
-                stopSequence: vehicle.stopSequence,
-                status: vehicle.status,
-                label: vehicle.label,
-                routeId: vehicle.routeId,
-                tripHeadsign: matchTripIdToTripHeadsign(vehicle.tripId, vehiclesData.references.trips),
-                stopName: matchStopIdToName(vehicle.stopId, vehiclesData.references.stops),
-                location: {
-                    lat: vehicle.location.lat,
-                    lon: vehicle.location.lon
-                }
-            }));
-
-            allVehicles.push(...vehicles);
-
-            const stopPromises = vehicles.map(vehicle =>
-                axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/trip-details', {
-                    params: {
-                        vehicleId: vehicle.vehicleId,
-                        date: getCurrentDate(),
-                        version: 4,
-                        includeReferences: true,
-                        key: apiKey
-                    }
-                })
-            );
-
-            const stopResponses = await Promise.all(stopPromises);
-
-            stopResponses.forEach((stopResponse, i) => {
-                allStopsByVehicle[vehicles[i].vehicleId] = stopResponse.data.data.entry.stopTimes.map(stop => ({
-                    stopId: matchStopIdToName(stop.stopId, stopResponse.data.data.references.stops),
-                    stopSequence: stop.stopSequence,
-                    predictedArrivalTime: formatTime(stop.predictedArrivalTime),
-                    predictedDepartureTime: formatTime(stop.predictedDepartureTime),
-                    arrivalTime: formatTime(stop.arrivalTime),
-                    departureTime: formatTime(stop.departureTime)
-                }));
-            });
-        }
-
-        app.locals.vehiclesVill = allVehicles;
-        app.locals.stopsByVehicleVill = allStopsByVehicle;
-        app.locals.currentDateVill = getCurrentDate();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-async function startFetchingDataVillamos() {
-    const routeIds = [ 'BKK_3190', 'BKK_3020', 'BKK_3171'];
-    await fetchDataFromAPIVillamos(routeIds);
-    setInterval(() => fetchDataFromAPIVillamos(routeIds), 30000);
-}
-
-// Start fetching data
-startFetchingDataVillamos();
-
-// Routes
-app.get('/home/villamos', (req, res) => {
-    try {
-        const vehiclesVill = app.locals.vehiclesVill || [];
-        const stopsByVehicleVill = app.locals.stopsByVehicleVill || {};
-        // const selectedDirectionVill = req.session.selectedDirectionVill || '';
-        // , selectedDirectionVill
-        res.render('villamos', { vehiclesVill, stopsByVehicleVill });
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
-    }
-});
-
-app.post('/home/villamos', (req, res) => {
-    try {
-        req.session.selectedDirectionVill = req.body.selectedDirectionVill;
-        res.redirect('/home/Villamos');
-    } catch (error) {
-        console.error('Error processing filter:', error);
-        res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
-    }
-});
-
-//----------------------Villamosok_END-------------------------------------------//
 app.get("/home/map", (req, res) => {
     const vehiclesH5 = app.locals.vehiclesH5 || [];
     const latlngs = app.locals.latlngs || [];
     const latlngs2 = app.locals.latlngs2 || [];
-    const vehiclesVill = app.locals.vehiclesVill || [];
+    // const vehiclesVill = app.locals.vehiclesVill || [];
     const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
     if (req.xhr) {
-        // If the request is an AJAX request, respond with JSON data
-        res.json({ H5: vehiclesH5, tram: vehiclesVill, latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
+        // If the request is an AJAX request, respond with JSON data //tram: vehiclesVill,
+        res.json({ H5: vehiclesH5,  latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
     } else {
-        // Otherwise, render the EJS template
-        res.render('map', { H5: vehiclesH5, tram: vehiclesVill, latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
+        // Otherwise, render the EJS template //tram: vehiclesVill,
+        res.render('map', { H5: vehiclesH5, latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
     }
 });
 

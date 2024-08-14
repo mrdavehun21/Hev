@@ -10,7 +10,7 @@ main{
     padding-bottom: 70px;
 }
 @media (max-width: 430px){
-    svg{
+    .logo{
         display: none;
     }
 }
@@ -137,53 +137,12 @@ hr{
     background-color: gray;
 }
 
-.dropdown-hev5, .dropdown-hev6, .dropdown-hev7, .dropdown-hev8, .dropdown-hev9{
-    background-color: transparent;
+.side-links {
+    font-size: 22px;
     color: white;
-    border-radius: 5px;
-    border: white 1px solid;
-    text-align: center;
     text-decoration: none;
-    font-size: 15px;
-    padding: 5px;
-    margin: 15px;
 }
 
-.dropdown-hev5:hover{
-    background-color: transparent;
+.side-links:hover {
     color: #108541;
-    border: #108541 1px solid;
-}
-.dropdown-hev6:hover{
-    background-color: transparent;
-    color: rgb(123, 68, 0);
-    border: rgb(123, 68, 0) 1px solid;
-}
-.dropdown-hev7:hover{
-    background-color: transparent;
-    color: rgb(238, 113, 1);
-    border: rgb(238, 113, 1) 1px solid;
-}
-.dropdown-hev8:hover, .dropdown-hev9:hover{
-    background-color: transparent;
-    color: rgb(237, 110, 134);
-    border: rgb(237, 110, 134) 1px solid;
-}
-
-.custom-dropdown-link {
-    background-color: transparent;
-    color: white;
-    border-radius: 5px;
-    border: white 1px solid;
-    text-align: center;
-    text-decoration: none;
-    font-size: 15px;
-    padding: 5px;
-    margin: 15px;
-}
-
-.custom-dropdown-link:hover {
-    background-color: transparent;
-    color: #108541;
-    border: #108541 1px solid;
 }

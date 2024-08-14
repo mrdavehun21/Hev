@@ -69,21 +69,6 @@ button,
     color: #108541 !important;
 }
 
-.Hev6{
-    font-family: 'Racing Sans One';
-    color: #7b4400 !important;
-}
-
-.Hev7{
-    font-family: 'Racing Sans One';
-    color: #ee7101 !important;
-}
-
-.Hev8, .Hev9{
-    font-family: 'Racing Sans One';
-    color: #ed6e86 !important;
-}
-
 .offcanvas-title {
     border-bottom: 1px solid white;
     width: 100%;
@@ -210,18 +195,6 @@ td, th {
     }
 }
 
-/* .leftstopsH6 {
-    color: #7b4400;
-}
-
-.leftstopsH7 {
-    color: #ee7101;
-}
-
-.leftstopsH8, .leftstopsH9 {
-    color: #ed6e86;
-} */
-
 /*-------H5-------*/
 .circle-iconH5 {
     width: 15px;
@@ -250,90 +223,3 @@ td, th {
     background-color: #8A236C;
     z-index: 1;
 }
-/* 
-/*-----H6-------
-.circle-iconH6 {
-    width: 15px;
-    height: 15px;
-    display: inline-block;
-    border-radius: 50%;
-    border: 3px solid #7b4400;
-    background: white;
-    vertical-align: middle;
-    position: relative;
-    z-index: 2;
-}
-
-.stops-lineH6 {
-    position: relative;
-    height: 15px;
-}
-
-.stops-lineH6::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 11px;
-    width: 8px;
-    height: 105%;
-    background-color: #7b4400;
-    z-index: 1;
-}
-
-/*-------H7-------
-.circle-iconH7 {
-    width: 15px;
-    height: 15px;
-    display: inline-block;
-    border-radius: 50%;
-    border: 3px solid #ee7101;
-    background: white;
-    vertical-align: middle;
-    position: relative;
-    z-index: 2;
-}
-
-.stops-lineH7 {
-    position: relative;
-    height: 15px;
-}
-
-.stops-lineH7::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 11px;
-    width: 8px;
-    height: 105%;
-    background-color: #ee7101;
-    z-index: 1;
-}
-
-/*-------H8-------
-.circle-iconH8, .circle-iconH9 {
-    width: 15px;
-    height: 15px;
-    display: inline-block;
-    border-radius: 50%;
-    border: 3px solid #ed6e86;
-    background: white;
-    vertical-align: middle;
-    position: relative;
-    z-index: 2;
-}
-
-.stops-lineH8, .stops-lineH9 {
-    position: relative;
-    height: 15px;
-}
-
-.stops-lineH8::before, .stops-lineH9::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 11px;
-    width: 8px;
-    height: 105%;
-    background-color: #ed6e86;
-    z-index: 1;
-} */
