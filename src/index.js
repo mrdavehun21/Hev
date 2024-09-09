@@ -7,6 +7,7 @@ const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 var polyUtil = require('polyline-encoded');
+const cheerio = require('cheerio');
 
 app.use(express.json());
 app.use(session({
@@ -159,14 +160,63 @@ async function startFetchingDataH5() {
 // Start fetching data
 startFetchingDataH5();
 
+//----------------------Weather-------------------------------------------//
+async function fetchWeatherData() {
+    try {
+      const url = 'https://www.idokep.hu/idojaras/Budapest%20III.ker%20-%20Békásmegyer';
+      const response = await axios.get(url);
+      const html = response.data;
+      const $ = cheerio.load(html);
+  
+      const temperature = $('div.current-temperature').text().trim();
+      const condition = $('div.current-weather').text().trim();
+      const rain = $('div.current-weather-short-desc').text().trim();
+  
+        app.locals.temperature = temperature;
+        app.locals.condition = condition;
+        app.locals.rain = rain;
+
+    } catch (error) {
+      console.error("Error fetching weather data: ", error);
+    }
+}
+
+async function startFetchingWeatherData() {
+    await fetchWeatherData();
+    setInterval(fetchWeatherData, 15 * 60 * 1000);
+}
+// Start fetching data 15 minutes
+startFetchingWeatherData();
+
+//----------------------Weather_END-------------------------------------------//
+
+
 // Routes
 app.get('/home/vonatokH5', (req, res) => {
     try {
+        //Weather data
+        const temperature = app.locals.temperature || [];
+        const condition = app.locals.condition || [];
+        const information = app.locals.rain ||[];
+        
+        //Train data
         const vehiclesH5 = app.locals.vehiclesH5 || [];
         const stopsByVehicleH5 = app.locals.stopsByVehicleH5 || {};
         const selectedDirectionH5 = req.session.selectedDirectionH5 || '';
+        
+        // Read and parse the JSON file
         const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
-        res.render('vonatokH5', { vehiclesH5, stopsByVehicleH5, selectedDirectionH5, licensePlates: licensePlatesData });
+        
+        // Render the view with the collected data
+        res.render('vonatokH5', {
+            vehiclesH5,
+            stopsByVehicleH5,
+            selectedDirectionH5,
+            temperature,
+            condition,
+            information,
+            licensePlates: licensePlatesData
+        });
     } catch (error) {
         console.error('Error rendering page:', error);
         res.status(500).sendFile(path.join(__dirname, 'public', '500.html'));
@@ -185,11 +235,11 @@ app.post('/home/vonatokH5', (req, res) => {
 
 //----------------------Vonatok_END-------------------------------------------//
 
+
 app.get("/home/map", (req, res) => {
     const vehiclesH5 = app.locals.vehiclesH5 || [];
     const latlngs = app.locals.latlngs || [];
     const latlngs2 = app.locals.latlngs2 || [];
-    // const vehiclesVill = app.locals.vehiclesVill || [];
     const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
     if (req.xhr) {
