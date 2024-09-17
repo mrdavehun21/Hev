@@ -40,15 +40,62 @@
                           <option value="">Összes szerelvény</option>
                           <option value="Szentendre">Szentendre</option>
                           <option value="Békásmegyer">Békásmegyer</option>
-                          <option value="Batthyány tér">Batthyány tér</option>
+                          <!-- <option value="Batthyány tér">Batthyány tér</option> -->
                       </select>
                       <button type="submit" class="custom-button">OK</button>
                   </form>                        
               </li>
-              <p>Budapest III.ker - Békásmegyer</p>
-              <p><%= temperature %></p>
-              <p>Jelenleg <%= condition %></p>
-              <p><%= information %></p>
+              <div class="hr-text">Időjárás</div>
+
+              <p class="wInfo"><%= wExtraInfo %></p>
+              <div class="wCompact">
+                
+                <div class="wContainer">
+                  <p class="wText"><%= wTemperature %></p>
+              
+                  <%# Day %>
+                  <% if(currentHour < sunsetHour && currentHour > sunriseHour){%>
+    
+                    <%# Clear %>
+                    <% if(wCondition == "Derült") { %>
+                      <img class="wIcon" src="../icons/weather/clear.svg" alt="Derült">
+                    <% } %>
+                    
+                    <%# Cloudy %>
+                    <% if (wCondition == "Borult" || wCondition == "Erősen felhős" || wCondition == "Közepesen felhős" || wCondition == "Gyengén felhős") {%>
+                      <img class="wIcon" src="../icons/weather/pCloudy.svg" alt="Felhős">
+                    <% } %>
+                    
+                    <%# Rainy %>
+                    <% if (wCondition == "Eső" || wCondition == "Sok eső" || wCondition == "Eső viharos széllel" || wCondition == "Zápor") {%>
+                      <img class="wIcon" src="../icons/weather/rainy.svg" alt="Eső">
+                  <% } %>
+                  <%# Night %>
+                  <% } else { %>
+                  
+                    <%# Clear %>
+                    <% if(wCondition == "Derült") { %>
+                      <img class="wIcon" src="../icons/weather/clearNight.svg" alt="Derült">
+                    <% } %>
+                    
+                    <%# Cloudy %>
+                    <% if (wCondition == "Borult" || wCondition == "Erősen felhős" || wCondition == "Közepesen felhős" || wCondition == "Gyengén felhős") {%>
+                      <img class="wIcon" src="../icons/weather/pCloudyNight.svg" alt="Felhős">
+                    <% } %>
+    
+                    <%# Rainy %>
+                    <% if (wCondition == "Eső" || wCondition == "Sok eső" || wCondition == "Eső viharos széllel" || wCondition == "Zápor") {%>
+                      <img class="wIcon" src="../icons/weather/rainy.svg" alt="Eső">
+                    <% } %>
+                  <% } %>
+                </div>
+                <p class="wText"><%= wCondition %></p>
+              </div>
+              <div class="hr-text" style="margin-top: 20px;">információ</div>
+              <p class="information">A Duna magas vízállása miatt a HÉV
+                csak a Margit híd, budai hídfőig közlekedik.
+                Aktuális információ: <a href="https://bkk.hu/arviz" target="_blank">bkk.hu/arviz</a></p>
+                <p class="information">Jelenleg bizonyos funkciók a weboldalhoz nem érhetőek el.</p>
             </ul>
           </div>
         </div>
@@ -121,6 +168,8 @@
                           <img src="../icons/celfilmekH5/Bekas.png" alt="Békásmegyer" class="celfilm">
                       <% } else if (vehicle.tripHeadsign === 'Batthyány tér') { %>
                           <img src="../icons/celfilmekH5/Bter_old.png" alt="Batthyány tér" class="celfilm">
+                      <% } else { %>
+                        <img src="../icons/celfilmekH5/Margit_arviz.png" alt="Margit híd" class="celfilm">
                       <% } %>
                   </p>
                   

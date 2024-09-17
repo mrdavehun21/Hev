@@ -167,14 +167,36 @@ async function fetchWeatherData() {
       const response = await axios.get(url);
       const html = response.data;
       const $ = cheerio.load(html);
+
+      const now = new Date();
+      const currentHour = now.getHours();
+      const wTemperature = $('div.current-temperature').text().trim();
+      const wCondition = $('div.current-weather').text().trim();
+      const wDaychange = $('div.col-6.col-sm-8.col-md-12.pt-4.pt-md-2').text().trim();
+      const wExtraInfo = $('div.current-weather-short-desc').text().trim();
   
-      const temperature = $('div.current-temperature').text().trim();
-      const condition = $('div.current-weather').text().trim();
-      const rain = $('div.current-weather-short-desc').text().trim();
-  
-        app.locals.temperature = temperature;
-        app.locals.condition = condition;
-        app.locals.rain = rain;
+        app.locals.wTemperature = wTemperature;
+        app.locals.wCondition = wCondition;
+        app.locals.wExtraInfo = wExtraInfo;
+
+        /*Regex pattern (\b\d{1,2}:\d{2}\b):
+            \b: Word boundary to ensure we don't match part of a larger string.
+            \d{1,2}: Matches 1 or 2 digits (for hours).
+            :: Matches the colon between hours and minutes.
+            \d{2}: Matches exactly 2 digits (for minutes).
+            g: Global flag to find all occurrences in the string.
+        */
+
+        // Use a regular expression to match time in the format H:MM or HH:MM
+        const timeMatches = wDaychange.match(/\b\d{1,2}:\d{2}\b/g);
+
+        // Extract just the hour
+        const sunriseHour = timeMatches[0].split(':')[0];
+        const sunsetHour = timeMatches[1].split(':')[0];
+
+        app.locals.sunriseHour = sunriseHour;
+        app.locals.sunsetHour = sunsetHour;
+        app.locals.currentHour = currentHour;
 
     } catch (error) {
       console.error("Error fetching weather data: ", error);
@@ -195,9 +217,12 @@ startFetchingWeatherData();
 app.get('/home/vonatokH5', (req, res) => {
     try {
         //Weather data
-        const temperature = app.locals.temperature || [];
-        const condition = app.locals.condition || [];
-        const information = app.locals.rain ||[];
+        const wTemperature = app.locals.wTemperature || [];
+        const wCondition = app.locals.wCondition || [];
+        const wExtraInfo = app.locals.wExtraInfo || [];
+        const sunriseHour  = app.locals.sunriseHour || [];
+        const sunsetHour =  app.locals.sunsetHour || [];
+        const currentHour =  app.locals.currentHour || [];
         
         //Train data
         const vehiclesH5 = app.locals.vehiclesH5 || [];
@@ -212,9 +237,12 @@ app.get('/home/vonatokH5', (req, res) => {
             vehiclesH5,
             stopsByVehicleH5,
             selectedDirectionH5,
-            temperature,
-            condition,
-            information,
+            wTemperature,
+            wCondition,
+            wExtraInfo,
+            sunriseHour,
+            sunsetHour,
+            currentHour,
             licensePlates: licensePlatesData
         });
     } catch (error) {
