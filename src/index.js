@@ -75,6 +75,10 @@ function formatTime(timestamp) {
 
 //--------------H5------------------//
 // Function to fetch data from API
+let fetchInterval = 30000; // Default interval of 30 seconds
+let errorTimeout = 300000; // Longer interval of 5 minutes for errors
+let intervalId;
+
 async function fetchDataFromAPIH5() {
     try {
         const apiKey = process.env.API_KEY;
@@ -141,20 +145,36 @@ async function fetchDataFromAPIH5() {
         var latlngs = polyUtil.decode(encoded1);
         var latlngs2 = polyUtil.decode(encoded2);
 
+        
+        const now = new Date();
+        const currentHour = now.getHours();
+
         app.locals.vehiclesH5 = vehicles;
         app.locals.latlngs = latlngs;
         app.locals.latlngs2 = latlngs2;
         app.locals.stopsByVehicleH5 = stopsByVehicle;
         app.locals.currentDateH5 = getCurrentDate();
+        app.locals.currentHour = currentHour;
         
     } catch (error) {
         console.error('Error fetching data:', error);
+
+        // Check if the error is a 404
+        if (error.response && error.response.status === 404) {
+            console.warn('404 error encountered. Increasing interval to prevent spamming the API.');
+
+            // Set a longer interval if a 404 error occurs
+            clearInterval(intervalId);
+            fetchInterval = errorTimeout; // Set to 5 minutes
+            intervalId = setInterval(fetchDataFromAPIH5, fetchInterval);
+        }
     }
 }
 
-async function startFetchingDataH5() {
-    await fetchDataFromAPIH5();
-    setInterval(fetchDataFromAPIH5, 30000);
+// Start fetching data
+function startFetchingDataH5() {
+    fetchDataFromAPIH5();
+    intervalId = setInterval(fetchDataFromAPIH5, fetchInterval);
 }
 
 // Start fetching data
@@ -168,36 +188,19 @@ async function fetchWeatherData() {
       const html = response.data;
       const $ = cheerio.load(html);
 
-      const now = new Date();
-      const currentHour = now.getHours();
       const wTemperature = $('div.current-temperature').text().trim();
       const wCondition = $('div.current-weather').text().trim();
-      const wDaychange = $('div.col-6.col-sm-8.col-md-12.pt-4.pt-md-2').text().trim();
       const wExtraInfo = $('div.current-weather-short-desc').text().trim();
+      const wIcon = $('img.ik.forecast-bigicon').attr('src');
+
+      // If the src is a relative URL, convert it to an absolute one
+      const iconUrl = new URL(wIcon, url).href;
   
         app.locals.wTemperature = wTemperature;
         app.locals.wCondition = wCondition;
         app.locals.wExtraInfo = wExtraInfo;
-
-        /*Regex pattern (\b\d{1,2}:\d{2}\b):
-            \b: Word boundary to ensure we don't match part of a larger string.
-            \d{1,2}: Matches 1 or 2 digits (for hours).
-            :: Matches the colon between hours and minutes.
-            \d{2}: Matches exactly 2 digits (for minutes).
-            g: Global flag to find all occurrences in the string.
-        */
-
-        // Use a regular expression to match time in the format H:MM or HH:MM
-        const timeMatches = wDaychange.match(/\b\d{1,2}:\d{2}\b/g);
-
-        // Extract just the hour
-        const sunriseHour = timeMatches[0].split(':')[0];
-        const sunsetHour = timeMatches[1].split(':')[0];
-
-        app.locals.sunriseHour = sunriseHour;
-        app.locals.sunsetHour = sunsetHour;
-        app.locals.currentHour = currentHour;
-
+        app.locals.wIcon = iconUrl;
+        
     } catch (error) {
       console.error("Error fetching weather data: ", error);
     }
@@ -220,14 +223,13 @@ app.get('/home/vonatokH5', (req, res) => {
         const wTemperature = app.locals.wTemperature || [];
         const wCondition = app.locals.wCondition || [];
         const wExtraInfo = app.locals.wExtraInfo || [];
-        const sunriseHour  = app.locals.sunriseHour || [];
-        const sunsetHour =  app.locals.sunsetHour || [];
-        const currentHour =  app.locals.currentHour || [];
+        const wIcon = app.locals.wIcon || [];
         
         //Train data
         const vehiclesH5 = app.locals.vehiclesH5 || [];
         const stopsByVehicleH5 = app.locals.stopsByVehicleH5 || {};
         const selectedDirectionH5 = req.session.selectedDirectionH5 || '';
+        const currentHour = req.session.currentHour || [];
         
         // Read and parse the JSON file
         const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
@@ -240,8 +242,7 @@ app.get('/home/vonatokH5', (req, res) => {
             wTemperature,
             wCondition,
             wExtraInfo,
-            sunriseHour,
-            sunsetHour,
+            wIcon,
             currentHour,
             licensePlates: licensePlatesData
         });

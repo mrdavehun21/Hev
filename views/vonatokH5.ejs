@@ -40,62 +40,28 @@
                           <option value="">Összes szerelvény</option>
                           <option value="Szentendre">Szentendre</option>
                           <option value="Békásmegyer">Békásmegyer</option>
-                          <!-- <option value="Batthyány tér">Batthyány tér</option> -->
+                          <option value="Batthyány tér">Batthyány tér</option>
                       </select>
                       <button type="submit" class="custom-button">OK</button>
                   </form>                        
               </li>
               <div class="hr-text">Időjárás</div>
 
-              <p class="wInfo"><%= wExtraInfo %></p>
               <div class="wCompact">
-                
-                <div class="wContainer">
-                  <p class="wText"><%= wTemperature %></p>
-              
-                  <%# Day %>
-                  <% if(currentHour < sunsetHour && currentHour > sunriseHour){%>
-    
-                    <%# Clear %>
-                    <% if(wCondition == "Derült") { %>
-                      <img class="wIcon" src="../icons/weather/clear.svg" alt="Derült">
-                    <% } %>
-                    
-                    <%# Cloudy %>
-                    <% if (wCondition == "Borult" || wCondition == "Erősen felhős" || wCondition == "Közepesen felhős" || wCondition == "Gyengén felhős") {%>
-                      <img class="wIcon" src="../icons/weather/pCloudy.svg" alt="Felhős">
-                    <% } %>
-                    
-                    <%# Rainy %>
-                    <% if (wCondition == "Eső" || wCondition == "Sok eső" || wCondition == "Eső viharos széllel" || wCondition == "Zápor") {%>
-                      <img class="wIcon" src="../icons/weather/rainy.svg" alt="Eső">
-                  <% } %>
-                  <%# Night %>
-                  <% } else { %>
-                  
-                    <%# Clear %>
-                    <% if(wCondition == "Derült") { %>
-                      <img class="wIcon" src="../icons/weather/clearNight.svg" alt="Derült">
-                    <% } %>
-                    
-                    <%# Cloudy %>
-                    <% if (wCondition == "Borult" || wCondition == "Erősen felhős" || wCondition == "Közepesen felhős" || wCondition == "Gyengén felhős") {%>
-                      <img class="wIcon" src="../icons/weather/pCloudyNight.svg" alt="Felhős">
-                    <% } %>
-    
-                    <%# Rainy %>
-                    <% if (wCondition == "Eső" || wCondition == "Sok eső" || wCondition == "Eső viharos széllel" || wCondition == "Zápor") {%>
-                      <img class="wIcon" src="../icons/weather/rainy.svg" alt="Eső">
-                    <% } %>
-                  <% } %>
+                <div class="wFlexContainer">
+                    <p class="wText"><%= wTemperature %></p>
+                    <img class="wIcon" src="<%= wIcon %>" alt="Weather icon"/>
+                    <p class="wText"><%= wCondition %></p>
                 </div>
-                <p class="wText"><%= wCondition %></p>
               </div>
-              <div class="hr-text" style="margin-top: 20px;">információ</div>
-              <p class="information">A Duna magas vízállása miatt a HÉV
-                csak a Margit híd, budai hídfőig közlekedik.
-                Aktuális információ: <a href="https://bkk.hu/arviz" target="_blank">bkk.hu/arviz</a></p>
-                <p class="information">Jelenleg bizonyos funkciók a weboldalhoz nem érhetőek el.</p>
+
+              <p class="wInfo"><%= wExtraInfo %></p>
+              
+              <!-- <div class="hr-text" style="margin-top: 20px;">információ</div> 
+                  <p class="information">A Duna magas vízállása miatt a HÉV
+                    csak a Margit híd, budai hídfőig közlekedik.
+                    Aktuális információ: <a href="https://bkk.hu/arviz" target="_blank">bkk.hu/arviz</a></p>
+              -->
             </ul>
           </div>
         </div>
@@ -115,8 +81,8 @@
           return delayInMinutes > 0 ? `${delayInMinutes} perc` : ''; // Return delay in minutes or display nothing
         }
       %>
-
-      <% filteredVehicles.forEach(vehicle => { %>
+      <% if (vehiclesH5 && filteredVehicles.length > 0) { %> 
+        <% filteredVehicles.forEach(vehicle => { %>
           <div class="card mb-3">
               <div class="card-header">
                 <h5 class="card-title font">
@@ -129,7 +95,7 @@
                       <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
                       
                       <% items.forEach(item => { %>
-                        <% if(vehicle.licensePlate.includes('1147') || vehicle.licensePlate.includes('1148')) { %>
+                        <% if(vehicle.licensePlate.includes('1147') || vehicle.licensePlate.includes('1148') || vehicle.licensePlate.includes('1109') || vehicle.licensePlate.includes('1110') || vehicle.licensePlate.includes('1111') || vehicle.licensePlate.includes('1112')) { %>
                           <span style="color: #811331 !important;">
                             <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
                           </span>
@@ -164,12 +130,14 @@
                   <p class="card-text">
                       <% if (vehicle.tripHeadsign == 'Szentendre') { %>
                           <img src="../icons/celfilmekH5/Endre.png" alt="Szentendre" class="celfilm">
-                      <% } else if (vehicle.tripHeadsign === 'Békásmegyer') { %>
+                      <% } else if (vehicle.tripHeadsign == 'Békásmegyer') { %>
                           <img src="../icons/celfilmekH5/Bekas.png" alt="Békásmegyer" class="celfilm">
-                      <% } else if (vehicle.tripHeadsign === 'Batthyány tér') { %>
+                      <% } else if (vehicle.tripHeadsign == 'Batthyány tér') { %>
                           <img src="../icons/celfilmekH5/Bter_old.png" alt="Batthyány tér" class="celfilm">
+                      <% } else if (vehicle.tripHeadsign == 'Margit híd, budai hídfő') {  %>
+                        <img src="../icons/celfilmekH5/Margit_arviz.png" alt="Margit híd, budai hídfő" class="celfilm">
                       <% } else { %>
-                        <img src="../icons/celfilmekH5/Margit_arviz.png" alt="Margit híd" class="celfilm">
+                        <img src="../icons/celfilmekH5/NIS.png" alt="Nem Szállít Utasokat" class="celfilm">
                       <% } %>
                   </p>
                   
@@ -256,6 +224,20 @@
               </div>
           </div>
       <% }); %>
+        <!-- Night, Not In Service -->
+      <% } else if (currentHour > 0 && currentHour < 4){  %>
+        <h1 class="information">Jelenleg a H5-ös hév nem közlekedik</h1>
+        <p class="smallInformation">Ha bármilyen hibát tapasztal a weboldalon, kérjük, ne habozzon kapcsolatba lépni velünk!</p>
+
+        <!-- Futár error -->
+      <% } else if (!vehiclesH5){  %>
+        <h1 class="information">Jelenleg bizonyos funkciók a weboldalhoz nem érhetőek el.</h1>
+        <p class="error">Nincs bejövő adat</p>
+      
+        <!-- Other errors -->
+      <% } else { %>
+        <h1 class="information">Jelenleg bizonyos funkciók a weboldalhoz nem érhetőek el.</h1>
+      <% } %>
   </div>    
   </main>
   <footer class="d-flex bg-dark fixed-bottom flex-wrap justify-content-center align-items-center px-5 py-3 border-top mb-0">
