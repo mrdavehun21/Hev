@@ -95,23 +95,28 @@
                       <% const items = licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2)); %>
                       
                       <% items.forEach(item => { %>
-                        <% if(vehicle.licensePlate.includes('1147') || vehicle.licensePlate.includes('1148') || vehicle.licensePlate.includes('1109') || vehicle.licensePlate.includes('1110') || vehicle.licensePlate.includes('1111') || vehicle.licensePlate.includes('1112')) { %>
+
+                        <% // Check if either index (0 or 1) contains the red color conditions
+                        const isRed = item.palyaszam[0].includes('1147') || item.palyaszam[0].includes('1148') || item.palyaszam[0].includes('1109') || 
+                                      item.palyaszam[0].includes('1110') || item.palyaszam[0].includes('1111') || item.palyaszam[0].includes('1112') ||
+                                      item.palyaszam[1].includes('1147') || item.palyaszam[1].includes('1148') || item.palyaszam[1].includes('1109') || 
+                                      item.palyaszam[1].includes('1110') || item.palyaszam[1].includes('1111') || item.palyaszam[1].includes('1112');
+                        %>
+
+                        <% if(isRed) { %>
                           <span style="color: #811331 !important;">
                             <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
                           </span>
                         <% } else { %>
-                          <span>
+                          <span style="color: #F2EFC4 !important;">
                             <%= `${item.palyaszam[0]}-${item.palyaszam[1]}` %>
                           </span>
                         <% } %>
                       <% }); %>
 
                       <%# 3 szerelvényes %>
-                      <% if (items.length > 0 && vehicle.licensePlate.includes('-')) { %>
-                        <p type="button"><%= vehicle.label %></p>
-                      <% } %>
                       <% if (!vehicle.licensePlate.includes('-')) { %>
-                        <p type="button"><%= vehicle.label %>, 3 szerelvényes</p> 
+                        <p type="button">3 szerelvényes</p>
                       <% } %>
                     </div>
                   </h5>
