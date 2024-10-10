@@ -77,9 +77,12 @@
   </header>
   <main>
     <a href="/home/vonatokH5" class="image-container">
-      <img id="image1" class="Animate1" src="../icons/MXA.png"/>
-      <img id="image1-2" class="Animate1" src="../icons/MXA-MXA.png"/>
-      <div class="sin"><span class="invisible-sin">invisible</span></div>
+      <img id="vonat3" src="../icons/MXA.png"/>
+      <!-- <img id="vonat6" src="../icons/MXA-MXA.png"/> -->
+      <img id="jelzoZ2" src="../icons/jelzoZold2.png">
+      <img id="jelzoZ" src="../icons/jelzoZold2.png">
+      <img id="emberek" src="../icons/emberek.png"/>
+      <div class="sin"></div>
     </a>
   </main>
   <footer class="d-flex fixed-bottom bg-dark flex-wrap justify-content-center align-items-center px-5 py-3 border-top mb-0">
@@ -102,5 +105,81 @@
   <!-- Script -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="../js/service-worker.js"></script>
+  <script>
+    var w = window.innerWidth;
+    var vonat3 = document.getElementById("vonat3");
+    var sin = document.getElementsByClassName("sin");
+    var jelzoTilos = document.getElementById("jelzoZ2");
+    var jelzoZold = document.getElementById("jelzoZ");
+    var people = document.getElementById("emberek");
+
+    console.log(w);
+
+    jelzoTilos.style.position = "absolute";
+    jelzoZold.style.position = "absolute";
+    people.style.position = "absolute";
+    people.style.marginTop = "37px";
+    vonat3.style.position = "absolute"; 
+    
+
+    let maxPos;
+    let vonatPos = 0;
+    let direction = 1;  // 1 for forward, -1 for backward
+    vonat3.style.left = vonatPos + "px";
+    
+    let isPaused = false;  // Track whether it's paused
+    
+    // Different behavior for different screen widths
+    if (w >= 1920) {
+      maxPos = 1380; // Max position for 1920px width
+      jelzoZold.style.left = (maxPos - 100) + "px";
+      jelzoTilos.style.right = (maxPos - 100) + "px";
+    } else if (w >= 1366 && w < 1920) {
+      maxPos = 830;
+      jelzoZold.style.display = "none";
+      jelzoTilos.style.display = "none";
+    } else if (w >= 1024 && w < 1366) {
+      maxPos = 490;
+      jelzoZold.style.display = "none";
+      jelzoTilos.style.display = "none";
+    } else{
+      vonat3.style.display = "none";
+      jelzoZold.style.display = "none";
+      jelzoTilos.style.display = "none";
+      people.style.display = "none";
+      sin[0].style.visibility = "hidden";
+    }
+  
+    //Move the train back and forth
+    let interval = setInterval(function() {
+      if (!isPaused) {
+        vonatPos += direction;  // Increment or decrement based on direction
+        vonat3.style.left = vonatPos + "px";
+
+        // Position the people on both sides
+        let peopleLeft = vonatPos - 20; // Adjust this offset as needed
+        let peopleRight = vonatPos + 20; // Adjust this offset as needed
+        people.style.left = peopleRight + "px"; // Position for right side
+
+        // Show people only when the train is at the ends
+        if (vonatPos === 0 || vonatPos === maxPos) {
+          people.style.display = "block"; // Show people when train is at either end
+        } else {
+          people.style.display = "none"; // Hide people when train is in motion
+        }
+
+        if (vonatPos >= maxPos || vonatPos <= 0) {
+          isPaused = true;  // Pause movement
+          direction = -direction;  // Reverse direction
+          
+          // Pause for 5 seconds before resuming movement
+          setTimeout(function() {
+            isPaused = false;
+          }, 5000);  // 5000ms = 5 seconds
+        }
+      }
+    }, 10);  // Adjust time to control speed (milliseconds)
+  </script>
+  
 </body>
 </html>

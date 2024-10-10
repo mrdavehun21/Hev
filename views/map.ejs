@@ -45,6 +45,124 @@
         // Create a layer group for markers and polylines
         var overlayGroup = L.layerGroup().addTo(map);
 
+        function formatTime(timestamp) {
+            return new Date(timestamp * 1000).toLocaleTimeString('hu-HU', {
+                timeZone: 'Europe/Budapest',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
+        // Function to send stopId to the server and get data, then display it in a popup
+        function fetchArrivalsAndDepartures(stopId, marker) {
+        fetch(`/home/map/stop/${stopId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            //console.log('Fetched Data:', data); // Log the full response for debugging
+
+            // Check if stopTimes exists
+            const stopTimes = data?.data?.entry?.stopTimes;
+            
+            // Get the stop name from markersData based on the stopId
+            const stopName = markersData.find(m => m.id === stopId)?.name || 'Unknown Stop';
+            
+            if (stopTimes && stopTimes.length > 0) {
+                let popupContent = `<div><h3>${stopName}</h3>`;
+
+                stopTimes.forEach(stop => {
+                    let departureTime = stop.departureTime ? formatTime(stop.departureTime) : 'N/A';
+                    
+                    // Skip the last station stops
+                    if (stopId == 'BKK_09001' && stop.stopHeadsign == 'Batthyány tér') {
+                        return; // Skip this iteration
+                    }
+                    if (stopId == 'BKK_09183' && stop.stopHeadsign == 'Békásmegyer') {
+                        return; // Skip this iteration
+                    }
+                    if (stopId == 'BKK_09142' && stop.stopHeadsign == 'Szentendre') {
+                        return; // Skip this iteration
+                    }
+
+                    popupContent += `${stop.stopHeadsign}: ${departureTime} <br>`;
+                });
+
+                popupContent += '</div>';
+                marker.bindPopup(popupContent).openPopup();
+            } else {
+                marker.bindPopup(`<div><h3>${stopName}</h3>No departures available at this time.</div>`).openPopup();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            marker.bindPopup(`<div><h3>${stopName}</h3>Error loading data.</div>`).openPopup();
+        });
+    }
+
+
+
+        //09142 Szentendre
+        //09217
+        //09134
+        //09209
+        //09191213 Lenfono Batthy
+        //09191212 Lenfono Szent
+        //09126
+        //09183 Bekas
+        //09175207 Csill Batthy
+        //09175206 Csill Szent
+        //09159
+        //09100 Aquincum
+        //09084201 Kaszas Batthy
+        //09084200 Kaszas Szent
+        //09068 Szentlelek
+        //09050
+        //09043
+        //09019 Margithid
+        //09001 Batthy
+        // Array of markers data
+        const markersData = [
+            { id: 'BKK_09183', position: [47.598091, 19.054599], iconUrl: '../icons/megallok/megallo.svg', name: 'Békásmegyer' },//bekas
+            { id: 'BKK_09001', position: [47.506776, 19.039318], iconUrl: '../icons/megallok/megallo.svg', name: 'Batthyány tér' }, //batthyany
+            { id: 'BKK_09142', position: [47.661038, 19.075607], iconUrl: '../icons/megallok/megallo.svg', name: 'Szentendre' },//szentendre
+            { id: 'BKK_09217', position: [47.652191, 19.064901], iconUrl: '../icons/megallok/megallo.svg', name: 'Pannóniatelep' },//pannonia
+            { id: 'BKK_09134', position: [47.642749, 19.032657], iconUrl: '../icons/megallok/megallo.svg', name: 'Pomáz' },//pomaz
+            { id: 'BKK_09134', position: [47.628802, 19.043332], iconUrl: '../icons/megallok/megallo.svg', name: 'Szentistvántelep' },//szentistvant
+            { id: 'BKK_09191213', position: [47.621863, 19.046592], iconUrl: '../icons/megallok/megallo.svg', name: 'Budakalász, Lenfonó' },//lenfono - B ide
+            { id: 'BKK_09191212', position: [47.621692, 19.046912], iconUrl: '../icons/megallok/megallo.svg', name: 'Budakalász, Lenfonó' },//lenfono - SZ ide
+            { id: 'BKK_09126', position: [47.616165, 19.05492], iconUrl: '../icons/megallok/megallo.svg', name: 'Budakalász' },//budakalasz
+            { id: 'BKK_09175207', position: [47.586272, 19.045078], iconUrl: '../icons/megallok/megallo.svg', name: 'Csillaghegy' },//csill - B
+            { id: 'BKK_09175206', position: [47.585948, 19.044932], iconUrl: '../icons/megallok/megallo.svg', name: 'Csillaghegy' },//csill - SZ
+            { id: 'BKK_09159', position: [47.575685, 19.048568], iconUrl: '../icons/megallok/megallo.svg', name: 'Rómaifürdő' },//romaifurdo
+            { id: 'BKK_09100', position: [47.567255, 19.048728], iconUrl: '../icons/megallok/megallo.svg', name: 'Aquincum' },//aquincum
+            { id: 'BKK_09084201', position: [47.557039, 19.045372], iconUrl: '../icons/megallok/megallo.svg', name: 'Kaszásdűlő' },//kaszasd - B
+            { id: 'BKK_09084200', position: [47.556508, 19.045133], iconUrl: '../icons/megallok/megallo.svg', name: 'Kaszásdűlő' },//kaszasd - SZ
+            { id: 'BKK_09068', position: [47.539636, 19.047161], iconUrl: '../icons/megallok/megallo.svg', name: 'Szentélek tér' },//szentlelek
+            { id: 'BKK_09050', position: [47.533964, 19.044643], iconUrl: '../icons/megallok/megallo.svg', name: 'Tímár utca' },//timar
+            { id: 'BKK_09043', position: [47.527303, 19.040168], iconUrl: '../icons/megallok/megallo.svg', name: 'Szépvölgyi út' },//szepvolgyi
+            { id: 'BKK_09019', position: [47.515376, 19.03938], iconUrl: '../icons/megallok/megallo.svg', name: 'Margit híd, budai hídfő' },//margit_hid
+        ];
+
+        // Create and add markers to the map
+        markersData.forEach(markerData => {
+            const marker = L.marker(markerData.position, {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: `<img src="${markerData.iconUrl}" width="26" height="26"/>`,
+                    iconSize: [26, 32]
+                })
+            }).addTo(map).on('click', function() {
+                fetchArrivalsAndDepartures(markerData.id, marker); // Send stopId and marker to the function
+            });
+        });
+
+        
+
+        //vonatok
         function fetchData() {
             fetch('/home/map', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.json())
@@ -94,6 +212,7 @@
             fetchData();
             setInterval(fetchData, 30000);
         };
+        
     </script>
 </body>
 </html>

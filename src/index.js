@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 var polyUtil = require('polyline-encoded');
 const cheerio = require('cheerio');
+const router = express.Router();
 
 app.use(express.json());
 app.use(session({
@@ -265,6 +266,42 @@ app.post('/home/vonatokH5', (req, res) => {
 //----------------------Vonatok_END-------------------------------------------//
 
 
+//--------------------OneStopRequest--------------------------------------//
+
+router.get('/home/map/stop/:stopId', async (req, res) => {
+    const stopId = req.params.stopId;
+    const apiKey = process.env.API_KEY;
+
+    try {
+        const response = await axios.get('https://futar.bkk.hu/api/query/v1/ws/otp/api/where/arrivals-and-departures-for-stop', {
+            params: {
+                minutesBefore: 2,
+                minutesAfter: 20,
+                stopId: stopId,
+                includeRouteId: 'BKK_H5',
+                onlyDepartures: true,//csak az erkezesi ido NEM szerepel
+                limit: 10,
+                radius: 10,
+                query: 'h5',
+                minResult: 3,
+                version: 2,
+                includeReferences: true,
+                key: apiKey
+            }
+        });
+        res.json(response.data); // Send the data back to the client
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'Error fetching data' });
+    }
+});
+module.exports = router;
+
+const mapRoutes = require('../src/index.js'); // Path to your routes/index.js or wherever your router is defined
+app.use('/', mapRoutes);
+
+
+
 app.get("/home/map", (req, res) => {
     const vehiclesH5 = app.locals.vehiclesH5 || [];
     const latlngs = app.locals.latlngs || [];
@@ -272,10 +309,10 @@ app.get("/home/map", (req, res) => {
     const licensePlatesData = JSON.parse(fs.readFileSync('./data/licensePlates.json', 'utf8'));
 
     if (req.xhr) {
-        // If the request is an AJAX request, respond with JSON data //tram: vehiclesVill,
+        // If the request is an AJAX request, respond with JSON data
         res.json({ H5: vehiclesH5,  latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
     } else {
-        // Otherwise, render the EJS template //tram: vehiclesVill,
+        // Otherwise, render the EJS template
         res.render('map', { H5: vehiclesH5, latlngs: latlngs, latlngs2: latlngs2, licensePlates: licensePlatesData});
     }
 });
