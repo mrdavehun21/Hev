@@ -55,75 +55,52 @@
         }
         // Function to send stopId to the server and get data, then display it in a popup
         function fetchArrivalsAndDepartures(stopId, marker) {
-        fetch(`/home/map/stop/${stopId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            //console.log('Fetched Data:', data); // Log the full response for debugging
+            fetch(`/home/map/stop/${stopId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
 
-            // Check if stopTimes exists
-            const stopTimes = data?.data?.entry?.stopTimes;
-            
-            // Get the stop name from markersData based on the stopId
-            const stopName = markersData.find(m => m.id === stopId)?.name || 'Unknown Stop';
-            
-            if (stopTimes && stopTimes.length > 0) {
-                let popupContent = `<div><h3>${stopName}</h3>`;
+                // Check if stopTimes exists
+                const stopTimes = data?.data?.entry?.stopTimes;
+                
+                // Get the stop name from markersData based on the stopId
+                const stopName = markersData.find(m => m.id === stopId)?.name || 'Unknown Stop';
+                
+                if (stopTimes && stopTimes.length > 0) {
+                    let popupContent = `<div><span style="font-weight: bolder; font-size: 17px;">${stopName}</span> <br> <hr>`;
 
-                stopTimes.forEach(stop => {
-                    let departureTime = stop.departureTime ? formatTime(stop.departureTime) : 'N/A';
-                    
-                    // Skip the last station stops
-                    if (stopId == 'BKK_09001' && stop.stopHeadsign == 'Batthyány tér') {
-                        return; // Skip this iteration
-                    }
-                    if (stopId == 'BKK_09183' && stop.stopHeadsign == 'Békásmegyer') {
-                        return; // Skip this iteration
-                    }
-                    if (stopId == 'BKK_09142' && stop.stopHeadsign == 'Szentendre') {
-                        return; // Skip this iteration
-                    }
+                    stopTimes.forEach(stop => {
+                        let departureTime = stop.departureTime ? formatTime(stop.departureTime) : 'N/A';
+                        
+                        // Skip the last station stops
+                        if (stopId == 'BKK_09001' && stop.stopHeadsign == 'Batthyány tér') {
+                            return; // Skip this iteration
+                        }
+                        if (stopId == 'BKK_09183' && stop.stopHeadsign == 'Békásmegyer') {
+                            return; // Skip this iteration
+                        }
+                        if (stopId == 'BKK_09142' && stop.stopHeadsign == 'Szentendre') {
+                            return; // Skip this iteration
+                        }
 
-                    popupContent += `${stop.stopHeadsign}: ${departureTime} <br>`;
-                });
+                        popupContent += `<img src="../icons/H5_hevLogo.png" style="width: 1.5rem; position: relative; top: 7px;"> <span style="font-size: 13px;"> ${stop.stopHeadsign}: <b>${departureTime}</b></span> <br>`;
+                    });
 
-                popupContent += '</div>';
-                marker.bindPopup(popupContent).openPopup();
-            } else {
-                marker.bindPopup(`<div><h3>${stopName}</h3>No departures available at this time.</div>`).openPopup();
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-            marker.bindPopup(`<div><h3>${stopName}</h3>Error loading data.</div>`).openPopup();
-        });
-    }
-
-
-
-        //09142 Szentendre
-        //09217
-        //09134
-        //09209
-        //09191213 Lenfono Batthy
-        //09191212 Lenfono Szent
-        //09126
-        //09183 Bekas
-        //09175207 Csill Batthy
-        //09175206 Csill Szent
-        //09159
-        //09100 Aquincum
-        //09084201 Kaszas Batthy
-        //09084200 Kaszas Szent
-        //09068 Szentlelek
-        //09050
-        //09043
-        //09019 Margithid
-        //09001 Batthy
+                    popupContent += '</div>';
+                    marker.bindPopup(popupContent).openPopup();
+                } else {
+                    marker.bindPopup(`<div><span style="font-weight: bolder; font-size: 17px;">${stopName}</span> <br> <hr> <span style="font-size: 13px;">No departures available at this time.</span></div>`).openPopup();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                marker.bindPopup(`<div><span style="font-weight: bolder; font-size: 17px;">${stopName}</span> <br> <hr> <span style="font-size: 13px;">Error loading data.</span></div>`).openPopup();
+            });
+        }
         // Array of markers data
         const markersData = [
             { id: 'BKK_09183', position: [47.598091, 19.054599], iconUrl: '../icons/megallok/megallo.svg', name: 'Békásmegyer' },//bekas
@@ -141,6 +118,7 @@
             { id: 'BKK_09100', position: [47.567255, 19.048728], iconUrl: '../icons/megallok/megallo.svg', name: 'Aquincum' },//aquincum
             { id: 'BKK_09084201', position: [47.557039, 19.045372], iconUrl: '../icons/megallok/megallo.svg', name: 'Kaszásdűlő' },//kaszasd - B
             { id: 'BKK_09084200', position: [47.556508, 19.045133], iconUrl: '../icons/megallok/megallo.svg', name: 'Kaszásdűlő' },//kaszasd - SZ
+            { id: 'BKK_09118', position: [47.551903, 19.046243], iconUrl: '../icons/megallok/megallo.svg', name: 'Filatorigát' }, //filatorigat
             { id: 'BKK_09068', position: [47.539636, 19.047161], iconUrl: '../icons/megallok/megallo.svg', name: 'Szentélek tér' },//szentlelek
             { id: 'BKK_09050', position: [47.533964, 19.044643], iconUrl: '../icons/megallok/megallo.svg', name: 'Tímár utca' },//timar
             { id: 'BKK_09043', position: [47.527303, 19.040168], iconUrl: '../icons/megallok/megallo.svg', name: 'Szépvölgyi út' },//szepvolgyi
@@ -180,9 +158,9 @@
                             const palyaszamFormatted = items.map(item => `${item.palyaszam[0]}-${item.palyaszam[1]}`).join(' ');
                             let route = vehicle.routeId.replace(/^BKK_/, '');
                             const popupContent = `<div>
-                                                    <span>${route}</span> > <span>${vehicle.tripHeadsign}</span>
+                                                    <span><img src="../icons/H5_logo.png" style="width: 4rem; position: relative; top: 7px;"> </span><span style="font-weight: bolder; font-size: 17px;"> ► ${vehicle.tripHeadsign}</span>
                                                     <hr>
-                                                    <strong style="text-align: right;">${palyaszamFormatted}</strong>
+                                                    <strong">${palyaszamFormatted}</strong>
                                                 </div>`;
 
                             var marker = L.marker([vehicle.location.lat, vehicle.location.lon], { icon: L.divIcon({
