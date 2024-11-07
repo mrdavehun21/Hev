@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
     <style>
         #map {
             height: 100vh;
@@ -24,8 +26,10 @@
     </style>
 </head>
 <body>
-    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <div id="map"></div>
+
     <div class="leaflet-top leaflet-right">
         <div class="leaflet-control-layers leaflet-control" aria-haspopup="true">
             <a class="menu-items" href="/home">Főoldal</a>
@@ -33,18 +37,40 @@
             <a class="menu-items" href="/home/vonatokH5">H5</a>
         </div>        
     </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
         var map = L.map('map').setView([47.575247, 19.068515], 12);
 
-        // Define the tile layer
         var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // Create a layer group for markers and polylines
-        var overlayGroup = L.layerGroup().addTo(map);
+        // Create a MarkerClusterGroup for clustering
+        var markerClusterGroup = L.markerClusterGroup();
+        map.addLayer(markerClusterGroup);
 
+        // Define a layer group to store the polylines
+        var overlayGroup = L.layerGroup().addTo(map);
+        
+        // Function to set map view to user's location
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLat = position.coords.latitude;
+                        const userLon = position.coords.longitude;
+                        
+                        // Set map view to user's location and add a marker
+                        map.setView([userLat, userLon], 14);
+                        L.marker([userLat, userLon]).addTo(map)
+                    },
+                    (error) => {
+                        console.error("Error fetching location: ", error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        
         function formatTime(timestamp) {
             return new Date(timestamp * 1000).toLocaleTimeString('hu-HU', {
                 timeZone: 'Europe/Budapest',
@@ -138,58 +164,61 @@
             });
         });
 
-        
-
         //vonatok
         function fetchData() {
             fetch('/home/map', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.json())
                 .then(data => {
-                    // Clear all layers in the overlay group
+                    // Clear previous train markers from the cluster group and overlay polylines
+                    markerClusterGroup.clearLayers();
                     overlayGroup.clearLayers();
 
-                    // Add markers for hevs
+                    // Add markers for vehicles
                     data.H5.forEach(vehicle => {
                         const [part1, part2] = vehicle.licensePlate.split("-");
                         const items = data.licensePlates.filter(item => item.palyaszam.includes(part1) || item.palyaszam.includes(part2));
                         let direction = vehicle.bearing || 0;
 
+                        // Popup content
                         if (items.length > 0) {
                             const palyaszamFormatted = items.map(item => `${item.palyaszam[0]}-${item.palyaszam[1]}`).join(' ');
-                            let route = vehicle.routeId.replace(/^BKK_/, '');
                             const popupContent = `<div>
-                                                    <span><img src="../icons/H5_logo.png" style="width: 4rem; position: relative; top: 7px;"> </span><span style="font-weight: bolder; font-size: 17px;"> ► ${vehicle.tripHeadsign}</span>
+                                                    <span><img src="../icons/H5_logo.png" style="width: 4rem; position: relative; top: 7px;"> </span>
+                                                    <span style="font-weight: bolder; font-size: 17px;"> ► ${vehicle.tripHeadsign}</span>
                                                     <hr>
-                                                    <strong">${palyaszamFormatted}</strong>
+                                                    <strong>${palyaszamFormatted}</strong>
                                                 </div>`;
 
-                            var marker = L.marker([vehicle.location.lat, vehicle.location.lon], { icon: L.divIcon({
-                                            className: 'custom-marker',
-                                            html: `<svg width="26" height="32" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${direction}deg);">
-                                                <path d="M23.9395 18.7344C23.9395 24.8689 18.8493 29.959 12.7148 29.959C6.5909 29.959 1.5 24.8696 1.5 18.7344C1.5 12.6082 6.58187 7.51953 12.7051 7.51953C18.8418 7.51953 23.9395 12.6119 23.9395 18.7344Z" fill="white" stroke="#8A236C" stroke-width="3"/>
-                                                <path d="M21 6L15 4.875L13 4.5L11 4.875L5 6L13 0L21 6Z" fill="black"/>
-                                                </svg>`,
-                                            iconSize: [26, 32]
-                                        })
-                            })
-                                .bindPopup(popupContent);
-                            marker.addTo(overlayGroup);
+                            // Create a marker for each vehicle
+                            var marker = L.marker([vehicle.location.lat, vehicle.location.lon], {
+                                icon: L.divIcon({
+                                    className: 'custom-marker',
+                                    html: `<svg width="26" height="32" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${direction}deg);">
+                                        <path d="M23.9395 18.7344C23.9395 24.8689 18.8493 29.959 12.7148 29.959C6.5909 29.959 1.5 24.8696 1.5 18.7344C1.5 12.6082 6.58187 7.51953 12.7051 7.51953C18.8418 7.51953 23.9395 12.6119 23.9395 18.7344Z" fill="white" stroke="#8A236C" stroke-width="3"/>
+                                        <path d="M21 6L15 4.875L13 4.5L11 4.875L5 6L13 0L21 6Z" fill="black"/>
+                                        </svg>`,
+                                    iconSize: [26, 32]
+                                })
+                            }).bindPopup(popupContent);
+
+                            // Add the marker to the cluster group
+                            markerClusterGroup.addLayer(marker);
 
                             var latlngs = data.latlngs.map(coord => L.latLng(coord[0], coord[1]));
                             var polyline = L.polyline(latlngs, { color: '#8A236C' });
                             polyline.addTo(overlayGroup);
                         }   
                     });
-                })
-                .catch(error => {
+                }).catch(error => {
                     console.error('Error fetching data:', error);
                 });
         }
 
-        window.onload = function () {
-            fetchData();
-            setInterval(fetchData, 30000);
-        };
+        fetchData();
+        locateUser();
+
+        // Refresh data every 30 seconds (30000 milliseconds)
+        setInterval(fetchData, 30000);
         
     </script>
 </body>

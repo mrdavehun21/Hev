@@ -303,12 +303,6 @@ app.use('/', mapRoutes);
 
 
 app.get("/home/map", (req, res) => {
-
-    // Set headers to prevent caching
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-
     const vehiclesH5 = app.locals.vehiclesH5 || [];
     const latlngs = app.locals.latlngs || [];
     const latlngs2 = app.locals.latlngs2 || [];

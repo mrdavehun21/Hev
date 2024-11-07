@@ -8,11 +8,11 @@
         "indexNum": [1, 2]
     },
     {
-        "palyaszam": ["979", "980"],
+        "palyaszam": ["1133", "1134"],
         "indexNum": [2]
     },
     {
-        "palyaszam": ["981", "982"],
+        "palyaszam": ["979", "980"],
         "indexNum": [2, 2]
     },
     {
@@ -32,11 +32,11 @@
         "indexNum": [4, 2]
     },
     {
-        "palyaszam": ["995", "996"],
+        "palyaszam": ["1141", "1142"],
         "indexNum": [5]
     },
     {
-        "palyaszam": ["1141", "1142"],
+        "palyaszam": ["995", "996"],
         "indexNum": [5, 2]
     },
     {
@@ -88,11 +88,11 @@
         "indexNum": [11, 2]
     },
     {
-        "palyaszam": ["1133", "1134"],
+        "palyaszam": ["1113", "1114"],
         "indexNum": [12]
     },
     {
-        "palyaszam": ["1113", "1114"],
+        "palyaszam": ["1149", "1150"],
         "indexNum": [12, 2]
     },
     {
@@ -104,11 +104,11 @@
         "indexNum": [13, 2]
     },
     {
-        "palyaszam": ["1123", "1124"],
+        "palyaszam": ["1111", "1112"],
         "indexNum": [14]
     },
     {
-        "palyaszam": ["1149", "1150"],
+        "palyaszam": ["1123", "1124"],
         "indexNum": [14, 2]
     }
 ]  
